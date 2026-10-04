@@ -27,7 +27,8 @@ src/ui/*                   dom.ts (h(), texte uniquement), calendar.ts, format.t
 - `save_availability(jsonb)` : enregistrement atomique de la semaine (admin).
 
 ## Sécurité
-- `revoke all` puis `grant` ciblés ; RLS partout. Le rôle `authenticated` inclut les connexions anonymes : l'admin n'est reconnu que par `is_admin()` (table `admins`).
+- `revoke all` puis `grant` ciblés ; RLS partout. Le rôle `authenticated` inclut les connexions anonymes et tout compte créé par inscription : l'admin n'est reconnu que par `is_admin()` (table `admins`), donc un compte tiers n'a aucun droit de plus qu'un client anonyme.
+- Auth Supabase : « Allow new users to sign up » doit rester **ON** (sinon `signInAnonymously` échoue en `signup_disabled`). Garder « Confirm email » ON pour qu'une inscription par email n'obtienne pas de session sans confirmation.
 - Clients : ne lisent que leurs rendez-vous (`client_id = auth.uid()`), n'écrivent que par RPC. Admin : lit/supprime tout.
 - Realtime : `appointments` publié ; replica identity par défaut, donc les `DELETE` ne contiennent que l'id (pas de donnée personnelle). Les événements `DELETE` ne supportent pas de filtre : le client écoute sans filtre et **recharge** sa liste (filtrée par RLS).
 - Les données distantes sont toujours insérées comme texte (`createTextNode`), jamais `innerHTML`.

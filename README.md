@@ -15,7 +15,8 @@ La maquette validée est dans `design/` ; l'architecture dans [`ARCHITECTURE.md`
 ### 1. Supabase
 1. Créer un projet Supabase.
 2. SQL Editor : exécuter dans l'ordre `supabase/schema.sql`, `supabase/functions.sql`, `supabase/policies.sql`.
-3. Authentication → Providers : **activer « Anonymous sign-ins »**, **désactiver les inscriptions par email** (Allow new users to sign up = off).
+3. Authentication → Sign In / Providers : **« Allow new users to sign up » = ON** et **« Allow anonymous sign-ins » = ON**, et garder **« Confirm email » = ON**.
+   > Ne pas désactiver « Allow new users to sign up » : cela bloque aussi les connexions anonymes (erreur `signup_disabled`, HTTP 422) et personne ne peut plus réserver. Un compte créé par un tiers n'a aucun privilège : l'admin n'est reconnu que par la table `admins`.
 4. Authentication → URL Configuration : Site URL = l'URL GitHub Pages.
 5. Créer le compte admin (Authentication → Users → Add user, email + mot de passe), puis :
    ```sql
