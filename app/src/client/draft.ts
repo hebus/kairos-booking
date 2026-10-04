@@ -5,7 +5,7 @@ export const draft: {
   day?: string;
   slot?: Slot;
   /** Rendez-vous qui vient d'être confirmé (écran de confirmation). */
-  done?: { day: string; start: string; name: string; createdProfile: boolean };
+  done?: { id: string; day: string; start: string; end: string; name: string; createdProfile: boolean };
   /** Où revenir après l'édition du profil. */
   returnTo?: string;
   flash?: string;

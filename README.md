@@ -26,7 +26,7 @@ L'architecture, la sécurité et la checklist de non-régression sont dans [`ARC
 
 ## Fonctionnalités
 
-**Client** : calendrier des jours réservables, créneaux libres, profil (prénom, nom, téléphone) enregistré dans le navigateur et utilisé pour les réservations suivantes, « Mes rendez-vous » (à venir / passés, mise à jour en direct), annulation, états vides.
+**Client** : calendrier des jours réservables, créneaux libres, profil (prénom, nom, téléphone) enregistré dans le navigateur et utilisé pour les réservations suivantes, « Mes rendez-vous » (à venir / passés, mise à jour en direct), annulation, états vides, et ajout du rendez-vous au calendrier de l'utilisateur (fichier `.ics` ou lien Google Agenda) depuis la confirmation et depuis « Mes rendez-vous ».
 
 **Admin** (connexion email + mot de passe) :
 - *Rendez-vous* : liste groupée par jour, recherche, suppression (disparaît chez le client), alerte quand un client annule.
@@ -68,6 +68,7 @@ Scripts : `npm run typecheck`, `npm test`, `npm run build`, `npm run preview`.
 > La clé publishable (anon) est publique par conception : la sécurité repose sur la RLS. **Ne jamais** utiliser la clé `service_role` dans l'appli.
 
 ## Limites connues
+- L'événement ajouté au calendrier est une copie : annuler dans l'appli (ou suppression par l'admin) ne le retire pas du calendrier du client. Pas d'adresse dans l'événement pour l'instant ; l'ajouter demandera une colonne en base et un champ côté Admin.
 - Pas de favicon (404 dans la console du navigateur).
 - Pas de mode sombre.
 - Les `.dc.html` de `design/` sont des maquettes (format d'un outil de design), pas du code de l'appli.

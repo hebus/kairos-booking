@@ -18,7 +18,9 @@ src/data/admin.ts          API Admin : auth email/mot de passe, CRUD protégé p
 src/data/profile-store.ts  localStorage : profil + cache « mes rendez-vous »
 src/client/*               pick (accueil), reserve (confirmation / formulaire / terminé), profile, mine, draft (état éphémère)
 src/admin/*                shell (garde d'accès + menu), appointments (défaut), availability, blocked
-src/ui/*                   dom.ts (h(), texte uniquement, icônes, états vides), calendar.ts, format.ts (testé), notice.ts
+src/ui/*                   dom.ts (h(), texte uniquement, icônes, états vides), calendar.ts, format.ts (testé), notice.ts,
+                           calendar-export.ts (.ics avec VTIMEZONE Europe/Paris, UID = id du rendez-vous, rappel 1 h ; lien Google Agenda ; testé)
+src/client/add-to-calendar.ts  boutons « Ajouter à mon calendrier » / « Google Agenda »
 src/styles.css             tokens et composants (repris de la maquette)
 ```
 Les pages n'accèdent jamais à Supabase directement : tout passe par `src/data/*`.
@@ -27,7 +29,7 @@ Les pages n'accèdent jamais à Supabase directement : tout passe par `src/data/
 `#/` (calendrier + créneaux) → `#/reserver` (confirmation directe si un profil existe, sinon formulaire qui crée le profil) → `#/confirme`. `#/profil` (créer/modifier ; retour à l'écran d'origine, y compris `#/reserver`), `#/rendez-vous` (liste, annulation). Le brouillon (jour, créneau) vit en mémoire : perdu au rechargement, volontairement.
 
 ## Tests
-- `npm test` (Vitest) : formats de dates, validation téléphone/profil (`src/ui/format.test.ts`).
+- `npm test` (Vitest) : formats de dates, validation téléphone/profil (`src/ui/format.test.ts`), génération du `.ics` et du lien Google Agenda (`src/ui/calendar-export.test.ts`).
 - `supabase/rls-tests.sql` : droits, double réservation, isolation entre clients, annulation, profil, jour bloqué, `save_availability`. À rejouer après toute modification de `functions.sql` ou `policies.sql`.
 - CI : le workflow lance `typecheck` + `test` avant le build.
 
@@ -65,6 +67,7 @@ Cochées = vérifiées sur le site publié le 2026-10-04 (script Playwright, hor
 - [x] Isolation : un autre client ne voit rien ; écriture directe, blocage de jour, `save_availability`, table `admins` refusés.
 - [x] `#/admin…` sans compte → écran de connexion ; mauvais identifiants → message d'erreur ; rechargement direct OK sur chaque route (hash).
 - [x] `supabase/rls-tests.sql` : OK.
+- [ ] Confirmation et « Mes rendez-vous » : « Ajouter à mon calendrier » télécharge un `.ics` qui s'ouvre (iPhone, Android, Outlook) avec la bonne heure ; « Google Agenda » pré-remplit l'événement.
 - [ ] Client réserve → l'admin le voit en direct (sans recharger).
 - [ ] Admin supprime → disparaît chez le client en direct.
 - [ ] Alerte jaune côté admin + badge « Annulé par le client » ; « Marquer comme lu » la retire.

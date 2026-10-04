@@ -2,9 +2,10 @@
 import { book, myAppointments } from '../data/booking';
 import { getProfile, saveProfile } from '../data/profile-store';
 import { h, icon } from '../ui/dom';
-import { capitalize, formatDay, fullName, isValidProfile, type Profile } from '../ui/format';
+import { capitalize, formatDay, fullName, hhmm, isValidProfile, type Profile } from '../ui/format';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import { go, type RenderFn } from '../router';
+import { addToCalendar } from './add-to-calendar';
 import { draft, resetDraft, takeFlash } from './draft';
 
 function backButton(onclick: () => void): HTMLElement {
@@ -19,9 +20,9 @@ function summary(day: string, start: string): HTMLElement {
 }
 
 async function submit(profile: Profile, day: string, start: string, createProfile: boolean): Promise<void> {
-  await book(day, start, profile);
+  const appt = await book(day, start, profile);
   if (createProfile) saveProfile(profile);
-  draft.done = { day, start, name: profile.first.trim(), createdProfile: createProfile };
+  draft.done = { id: appt.id, day, start, end: hhmm(appt.end_time), name: profile.first.trim(), createdProfile: createProfile };
   void myAppointments().catch(() => {}); // rafraîchit le cache (badge)
   go('/confirme');
 }
@@ -133,6 +134,7 @@ export const renderDone: RenderFn = (root) => {
           ? h('p', { style: 'font-size:14px;font-weight:600;color:var(--ok-ink)' },
               'Votre profil a été créé : il sera utilisé pour vos prochaines réservations.')
           : null,
+        addToCalendar({ id: done.id, day: done.day, start: done.start, end: done.end }, { hint: true }),
         h('button', { class: 'btn btn-outline btn-block', onclick: () => { resetDraft(); go('/'); } }, 'Prendre un autre rendez-vous'),
         h('button', { class: 'link-btn', onclick: () => { resetDraft(); go('/rendez-vous'); } }, 'Voir mes rendez-vous')
       )

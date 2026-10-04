@@ -7,6 +7,7 @@ import { emptyState, fill, h, icon } from '../ui/dom';
 import { capitalize, formatDay, hhmm, toIso } from '../ui/format';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import { go, type RenderFn } from '../router';
+import { addToCalendar } from './add-to-calendar';
 
 export const renderMine: RenderFn = (root) => {
   const todayIso = toIso(new Date());
@@ -50,6 +51,7 @@ export const renderMine: RenderFn = (root) => {
     );
     const parts: (Node | null)[] = [main];
     if (!past) {
+      parts.push(addToCalendar({ id: a.id, day: a.day, start: hhmm(a.start_time), end: hhmm(a.end_time) }));
       const label = `Annuler le rendez-vous du ${formatDay(a.day)} à ${hhmm(a.start_time)}`;
       if (asking === a.id) {
         parts.push(h('div', { class: 'confirm-box' },
