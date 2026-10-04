@@ -33,12 +33,21 @@ declare
   client_a  uuid := '00000000-0000-0000-0000-0000000000c1';
   client_b  uuid := '00000000-0000-0000-0000-0000000000c2';
   today_d   date := public.local_today();  -- lu en postgres : local_today() n'est pas exécutable par anon/authenticated
-  monday    date := date_trunc('week', today_d)::date + 7;  -- lundi prochain
-  sunday    date := monday + 6;
+  monday    date;
+  sunday    date;
   appt_id   uuid;
   n         int;
   failed    boolean;
 begin
+  -- Lundi de test : le premier lundi à venir SANS jour bloqué ni rendez-vous, pour que les
+  -- données réelles de la base n'influencent pas les assertions (rien n'est supprimé).
+  monday := date_trunc('week', today_d)::date + 7;
+  while exists (select 1 from public.blocked_days where day = monday)
+     or exists (select 1 from public.appointments where day = monday) loop
+    monday := monday + 7;
+  end loop;
+  sunday := monday + 6;
+
   insert into auth.users (id, aud, role, email) values
     (admin_id, 'authenticated', 'authenticated', 'admin@test.local'),
     (client_a, 'authenticated', 'authenticated', 'a@test.local'),
