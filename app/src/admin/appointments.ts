@@ -66,6 +66,14 @@ export function buildAppointments(main: HTMLElement): Cleanup {
     await reload();
   }
 
+  /** Ouvre la confirmation et la ramène au milieu de l'écran (hors de la zone du geste système en bas). */
+  function ask(id: string): void {
+    asking = id;
+    flash = '';
+    renderList();
+    content.querySelector('.appt-ask')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
   function row(a: Appointment): HTMLElement {
     const cancelled = a.status === 'cancelled';
     const name = fullName(a.first_name, a.last_name);
@@ -88,13 +96,13 @@ export function buildAppointments(main: HTMLElement): Cleanup {
             class: 'btn btn-outline btn-sm',
             style: 'color:var(--danger);border-color:var(--line-strong)',
             'aria-label': `Supprimer le rendez-vous de ${name}`,
-            onclick: () => { asking = a.id; flash = ''; renderList(); }
+            onclick: () => ask(a.id)
           }, icon('trash', 18), h('span', { class: 'lbl' }, 'Supprimer'))
     );
     if (asked || !window.matchMedia('(max-width: 720px)').matches) return card;
     // Mobile : glisser la carte vers la droite ouvre la même confirmation que le bouton (sans supprimer d'emblée).
     const reveal = h('div', { class: 'appt-swipe-bg', 'aria-hidden': 'true' }, icon('trash', 20), 'Supprimer');
-    enableSwipe(card, () => { asking = a.id; flash = ''; renderList(); });
+    enableSwipe(card, () => ask(a.id));
     return h('div', { class: 'appt-swipe' }, reveal, card);
   }
 
