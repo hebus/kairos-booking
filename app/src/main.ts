@@ -3,10 +3,13 @@ import { adminRoute } from './admin/shell';
 import { buildAppointments } from './admin/appointments';
 import { buildAvailability } from './admin/availability';
 import { buildBlocked } from './admin/blocked';
+import { buildSettings } from './admin/settings';
 import { renderMine } from './client/mine';
 import { renderPick } from './client/pick';
 import { renderProfile } from './client/profile';
 import { renderDone, renderReserve } from './client/reserve';
+import { loadPublicSettings } from './data/settings';
+import { configured } from './data/supabase';
 import { startRouter, type Route } from './router';
 
 const routes: Route[] = [
@@ -20,9 +23,19 @@ const routes: Route[] = [
   { path: '/admin', title: 'Admin — Rendez-vous', render: adminRoute('rendez-vous', buildAppointments) },
   { path: '/admin/rendez-vous', title: 'Admin — Rendez-vous', render: adminRoute('rendez-vous', buildAppointments) },
   { path: '/admin/disponibilites', title: 'Admin — Disponibilités', render: adminRoute('disponibilites', buildAvailability) },
-  { path: '/admin/jours-bloques', title: 'Admin — Jours bloqués', render: adminRoute('jours-bloques', buildBlocked) }
+  { path: '/admin/jours-bloques', title: 'Admin — Jours bloqués', render: adminRoute('jours-bloques', buildBlocked) },
+  { path: '/admin/parametres', title: 'Admin — Paramètres', render: adminRoute('parametres', buildSettings) }
 ];
 
 const root = document.getElementById('app');
 if (!root) throw new Error('#app introuvable');
+
+// Nom, téléphone et adresse de la société : on attend au plus 2,5 s, sinon on affiche la dernière
+// valeur connue (cache navigateur ou valeur par défaut) sans bloquer l'application.
+if (configured) {
+  await Promise.race([
+    loadPublicSettings().catch(() => undefined),
+    new Promise<void>((resolve) => setTimeout(resolve, 2500))
+  ]);
+}
 startRouter(root, routes, '/');

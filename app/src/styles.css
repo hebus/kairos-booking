@@ -118,6 +118,14 @@ a { color: inherit; }
 .cal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .cal-actions .btn { flex: 1 1 auto; }
 
+/* ---------- Contact société (client) ---------- */
+.contact { display: flex; flex-direction: column; gap: 8px; }
+.contact-title { font-size: 16px; font-weight: 800; }
+.contact-row { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.contact-row svg { flex: none; margin-top: 2px; color: var(--muted); }
+.contact-link { min-height: 44px; align-items: center; }
+.contact-link svg { margin-top: 0; }
+
 /* ---------- Coque Admin (desktop) ---------- */
 .admin { max-width: 1200px; margin: 0 auto; min-height: 100dvh; padding: 40px 40px 56px; display: flex; flex-direction: column; gap: 32px; }
 .tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -173,6 +181,15 @@ a { color: inherit; }
 .alert { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 20px; border-radius: 14px; background: var(--warn-bg); color: var(--warn-ink); font-size: 15px; font-weight: 600; }
 .alert span { flex: 1 1 280px; }
 .btn-warn { background: transparent; color: var(--warn-ink); border-color: var(--warn-ink); }
+.sec { padding: 28px; border-radius: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 20px; }
+.sec h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.switch-row { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+.event { padding: 20px 24px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; display: flex; flex-direction: column; gap: 14px; }
+.event-day { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.event-title { font-size: 20px; line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; }
+.event-row { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 600; }
+.event-row svg { flex: none; margin-top: 2px; color: var(--muted); }
+.field-error[hidden], .banner[hidden] { display: none; }
 .login { max-width: 420px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; gap: 24px; }
 
 @media (max-width: 720px) {

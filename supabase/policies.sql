@@ -21,7 +21,8 @@ grant select on public.settings, public.weekly_availability,
   public.availability_slots, public.blocked_days to anon, authenticated;
 grant insert, update, delete on public.weekly_availability,
   public.availability_slots, public.blocked_days to authenticated;
-grant update (slot_minutes, timezone) on public.settings to authenticated;
+grant update (slot_minutes, timezone, company_name, phone, address_street, address_complement,
+  address_zip, address_city, include_address_in_event) on public.settings to authenticated;
 
 drop policy if exists settings_read on public.settings;
 create policy settings_read on public.settings for select using (true);

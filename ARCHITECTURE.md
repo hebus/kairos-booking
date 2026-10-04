@@ -9,18 +9,21 @@ Inspirée de `popmart` : une couche de données isolée (`src/data/*`, équivale
 
 ## Couches
 ```
-src/config.ts              identité affichée (BRAND : nom de l'appli, nom de la société)
+src/config.ts              valeurs de secours (BRAND, TIMEZONE) ; les vraies valeurs viennent de la table settings
 src/router.ts              routeur par hash ; chaque route = render(root) → fonction de nettoyage
 src/main.ts                table des routes (client + admin)
 src/data/supabase.ts       2 clients (client / admin) avec storageKey distincts + check() → messages FR
 src/data/booking.ts        API Client : session anonyme paresseuse, RPC, realtime
 src/data/admin.ts          API Admin : auth email/mot de passe, CRUD protégé par RLS
 src/data/profile-store.ts  localStorage : profil + cache « mes rendez-vous »
+src/data/settings.ts       paramètres société (lecture publique, cache localStorage, formatAddress, eventContext) ; chargés avant le premier rendu (max 2,5 s)
 src/client/*               pick (accueil), reserve (confirmation / formulaire / terminé), profile, mine, draft (état éphémère)
 src/admin/*                shell (garde d'accès + menu), appointments (défaut), availability, blocked
 src/ui/*                   dom.ts (h(), texte uniquement, icônes, états vides), calendar.ts, format.ts (testé), notice.ts,
                            calendar-export.ts (.ics avec VTIMEZONE Europe/Paris, UID = id du rendez-vous, rappel 1 h ; lien Google Agenda ; testé)
 src/client/add-to-calendar.ts  boutons « Ajouter à mon calendrier » / « Google Agenda »
+src/client/contact.ts      carte société (adresse, téléphone cliquable) sur la confirmation et « Mes rendez-vous »
+src/admin/settings.ts      page Paramètres (validation, aperçu de l'événement en direct)
 src/styles.css             tokens et composants (repris de la maquette)
 ```
 Les pages n'accèdent jamais à Supabase directement : tout passe par `src/data/*`.
@@ -29,12 +32,12 @@ Les pages n'accèdent jamais à Supabase directement : tout passe par `src/data/
 `#/` (calendrier + créneaux) → `#/reserver` (confirmation directe si un profil existe, sinon formulaire qui crée le profil) → `#/confirme`. `#/profil` (créer/modifier ; retour à l'écran d'origine, y compris `#/reserver`), `#/rendez-vous` (liste, annulation). Le brouillon (jour, créneau) vit en mémoire : perdu au rechargement, volontairement.
 
 ## Tests
-- `npm test` (Vitest) : formats de dates, validation téléphone/profil (`src/ui/format.test.ts`), génération du `.ics` et du lien Google Agenda (`src/ui/calendar-export.test.ts`).
+- `npm test` (Vitest) : formats de dates, validation téléphone/profil (`src/ui/format.test.ts`), génération du `.ics` et du lien Google Agenda (`src/ui/calendar-export.test.ts`), paramètres société (`src/data/settings.test.ts`).
 - `supabase/rls-tests.sql` : droits, double réservation, isolation entre clients, annulation, profil, jour bloqué, `save_availability`. À rejouer après toute modification de `functions.sql` ou `policies.sql`.
 - CI : le workflow lance `typecheck` + `test` avant le build.
 
 ## Modèle de données
-`admins`, `settings` (durée des créneaux, fuseau), `weekly_availability` (0 = dimanche), `availability_slots`, `blocked_days`, `appointments` (index unique partiel `(day, start_time) where status = 'confirmed'`).
+`admins`, `settings` (une ligne : durée des créneaux, fuseau parmi Paris/Bruxelles/Zurich, nom de société, téléphone, adresse en 4 champs, option « adresse dans l'événement » ; lecture publique, écriture admin, contraintes SQL sur nom, téléphone et fuseau), `weekly_availability` (0 = dimanche), `availability_slots`, `blocked_days`, `appointments` (index unique partiel `(day, start_time) where status = 'confirmed'`).
 
 ## Règles métier (une seule implémentation, en SQL)
 - `available_slots(day)` : jour futur (strictement après aujourd'hui dans le fuseau du lieu), travaillé, non bloqué, créneau non pris. Mode « journée entière » : créneaux générés toutes les `slot_minutes` ; mode « créneaux » : chaque plage est un créneau tel quel.
@@ -67,6 +70,8 @@ Cochées = vérifiées sur le site publié le 2026-10-04 (script Playwright, hor
 - [x] Isolation : un autre client ne voit rien ; écriture directe, blocage de jour, `save_availability`, table `admins` refusés.
 - [x] `#/admin…` sans compte → écran de connexion ; mauvais identifiants → message d'erreur ; rechargement direct OK sur chaque route (hash).
 - [x] `supabase/rls-tests.sql` : OK.
+- [ ] Admin → Paramètres : enregistrer nom/téléphone/adresse ; recharger le site client : le nom, le téléphone (lien `tel:`) et l'adresse s'affichent ; nom vide ou téléphone invalide bloque l'enregistrement.
+- [ ] L'événement calendrier contient lieu et contact (adresse absente si l'interrupteur est coupé ou si elle est vide).
 - [ ] Confirmation et « Mes rendez-vous » : « Ajouter à mon calendrier » télécharge un `.ics` qui s'ouvre (iPhone, Android, Outlook) avec la bonne heure ; « Google Agenda » pré-remplit l'événement.
 - [ ] Client réserve → l'admin le voit en direct (sans recharger).
 - [ ] Admin supprime → disparaît chez le client en direct.

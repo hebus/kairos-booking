@@ -18,6 +18,24 @@ create table if not exists public.settings (
 );
 insert into public.settings (id) values (true) on conflict do nothing;
 
+-- Paramètres de la société (page Admin « Paramètres »). Lecture publique : ces informations
+-- sont affichées aux clients et ajoutées à leur événement calendrier.
+alter table public.settings
+  add column if not exists company_name text not null default 'Angel, Éveilleuse d’âmes'
+    check (char_length(btrim(company_name)) between 1 and 100),
+  add column if not exists phone text
+    check (phone is null or (phone ~ '^[0-9 +().-]{8,24}$' and length(regexp_replace(phone, '\D', '', 'g')) >= 8)),
+  add column if not exists address_street text check (char_length(address_street) <= 160),
+  add column if not exists address_complement text check (char_length(address_complement) <= 160),
+  add column if not exists address_zip text check (char_length(address_zip) <= 16),
+  add column if not exists address_city text check (char_length(address_city) <= 80),
+  add column if not exists include_address_in_event boolean not null default true;
+
+-- Fuseaux autorisés : mêmes règles d'heure d'été que celles du fichier .ics généré par l'appli.
+alter table public.settings drop constraint if exists settings_timezone_check;
+alter table public.settings add constraint settings_timezone_check
+  check (timezone in ('Europe/Paris', 'Europe/Brussels', 'Europe/Zurich'));
+
 -- ---------- Semaine type (0 = dimanche … 6 = samedi, comme JS getDay()) ----------
 create table if not exists public.weekly_availability (
   weekday smallint primary key check (weekday between 0 and 6),

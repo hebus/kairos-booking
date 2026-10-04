@@ -137,6 +137,32 @@ begin
   select count(*) into n from public.appointments;
   perform pg_temp.ensure(n = 0, 'admin peut supprimer un rendez-vous');
 
+  -- 7. paramètres de la société : lecture publique, écriture admin, contraintes
+  perform pg_temp.act_as(null, 'anon');
+  select count(*) into n from public.settings where company_name <> '';
+  perform pg_temp.ensure(n = 1, 'anon lit les paramètres de la société');
+  perform pg_temp.act_as(client_a);
+  update public.settings set company_name = 'Pirate' where id;
+  get diagnostics n = row_count;
+  perform pg_temp.ensure(n = 0, 'un client ne peut pas modifier les paramètres');
+  perform pg_temp.act_as(admin_id);
+  update public.settings set company_name = 'Société Test', phone = '06 12 34 56 78',
+    address_city = 'Paris', include_address_in_event = false where id;
+  get diagnostics n = row_count;
+  perform pg_temp.ensure(n = 1, 'admin peut modifier les paramètres');
+  failed := false;
+  begin update public.settings set timezone = 'Mars/Olympus' where id;
+  exception when check_violation then failed := true; end;
+  perform pg_temp.ensure(failed, 'fuseau horaire inconnu refusé');
+  failed := false;
+  begin update public.settings set phone = '123' where id;
+  exception when check_violation then failed := true; end;
+  perform pg_temp.ensure(failed, 'téléphone invalide refusé');
+  failed := false;
+  begin update public.settings set company_name = '   ' where id;
+  exception when check_violation then failed := true; end;
+  perform pg_temp.ensure(failed, 'nom de société vide refusé');
+
   perform pg_temp.act_as_postgres();
   raise notice 'OK — tous les tests RLS/RPC passent';
 end $$;

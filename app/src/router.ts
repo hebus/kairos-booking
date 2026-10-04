@@ -1,5 +1,5 @@
 // Routeur par hash (GitHub Pages ne sait pas réécrire les URL : pas de History API).
-import { BRAND } from './config';
+import { getSettings } from './data/settings';
 
 export type Cleanup = (() => void) | void;
 export type RenderFn = (root: HTMLElement) => Cleanup | Promise<Cleanup>;
@@ -33,7 +33,7 @@ export function startRouter(root: HTMLElement, routes: Route[], notFound: string
       go(notFound);
       return;
     }
-    document.title = `${route.title} · ${BRAND.company}`;
+    document.title = `${route.title} · ${getSettings().companyName}`;
     root.replaceChildren();
     const result = await route.render(root);
     // Navigation survenue pendant un rendu asynchrone : on libère tout de suite.

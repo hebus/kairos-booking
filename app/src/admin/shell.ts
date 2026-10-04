@@ -5,12 +5,13 @@ import { h } from '../ui/dom';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import type { Cleanup, RenderFn } from '../router';
 
-export type AdminTab = 'rendez-vous' | 'disponibilites' | 'jours-bloques';
+export type AdminTab = 'rendez-vous' | 'disponibilites' | 'jours-bloques' | 'parametres';
 
 const TABS: { id: AdminTab; label: string }[] = [
   { id: 'rendez-vous', label: 'Rendez-vous' },
   { id: 'disponibilites', label: 'Disponibilités' },
-  { id: 'jours-bloques', label: 'Jours bloqués' }
+  { id: 'jours-bloques', label: 'Jours bloqués' },
+  { id: 'parametres', label: 'Paramètres' }
 ];
 
 export function adminRoute(

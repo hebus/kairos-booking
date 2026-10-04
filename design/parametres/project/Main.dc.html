@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Admin — Paramètres</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+button,input,select{font-family:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #5B3DF5;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:100%;max-width:1200px;min-height:900px;margin:0 auto;box-sizing:border-box;padding:40px 40px 56px;display:flex;flex-direction:column;gap:32px;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#14141A;background:#FFFFFF">
+
+<nav aria-label="Administration" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+<a href="#" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#F5F5F8;color:#14141A;font-size:15px;font-weight:700;text-decoration:none">Rendez-vous</a>
+<a href="#" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#F5F5F8;color:#14141A;font-size:15px;font-weight:700;text-decoration:none">Disponibilités</a>
+<a href="#" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#F5F5F8;color:#14141A;font-size:15px;font-weight:700;text-decoration:none">Jours bloqués</a>
+<a href="#" aria-current="page" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#14141A;color:#FFFFFF;font-size:15px;font-weight:700;text-decoration:none">Paramètres</a>
+</nav>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:14px;font-weight:700;color:#5B3DF5;letter-spacing:0.02em">Administration</div>
+<h1 style="margin:0;font-size:36px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Paramètres</h1>
+<p style="margin:0;font-size:16px;color:#5C5C68">Les informations de votre société, affichées aux clients et dans leur calendrier.</p>
+</div>
+<button onClick="{{ save }}" disabled="{{ cannotSave }}" style="{{ saveStyle }}">{{ saveLabel }}</button>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="flex:1.4 1 480px;min-width:0;display:flex;flex-direction:column;gap:24px">
+
+<section style="box-sizing:border-box;padding:28px;border-radius:24px;background:#F5F5F8;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.01em">Société</h2>
+<p style="margin:0;font-size:14px;color:#5C5C68">Le nom apparaît en haut de l’écran client et dans le titre de l’événement calendrier.</p>
+</div>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Nom de la société
+<input type="text" value="{{ company }}" onChange="{{ onCompany }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+<sc-if value="{{ nameError }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="font-size:14px;font-weight:600;color:#B42318">Le nom de la société est obligatoire.</div>
+</sc-if>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Numéro de téléphone <span style="font-weight:500;color:#5C5C68">(facultatif)</span>
+<input type="tel" value="{{ phone }}" onChange="{{ onPhone }}" autocomplete="tel" placeholder="06 12 34 56 78" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+<sc-if value="{{ phoneError }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="font-size:14px;font-weight:600;color:#B42318">Numéro invalide : 8 chiffres minimum, uniquement chiffres, espaces et + ( ) . -</div>
+</sc-if>
+<p style="margin:0;font-size:14px;color:#5C5C68">Affiché aux clients pour vous joindre, et ajouté à l’événement calendrier.</p>
+</section>
+
+<section style="box-sizing:border-box;padding:28px;border-radius:24px;background:#F5F5F8;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.01em">Adresse</h2>
+<p style="margin:0;font-size:14px;color:#5C5C68">Facultative. Elle indique aux clients où se rendre.</p>
+</div>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Adresse
+<input type="text" value="{{ street }}" onChange="{{ onStreet }}" autocomplete="address-line1" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Complément <span style="font-weight:500;color:#5C5C68">(étage, code d’accès, parking…)</span>
+<input type="text" value="{{ complement }}" onChange="{{ onComplement }}" autocomplete="address-line2" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<label style="flex:1 1 140px;display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Code postal
+<input type="text" value="{{ zip }}" onChange="{{ onZip }}" autocomplete="postal-code" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+<label style="flex:2 1 220px;display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Ville
+<input type="text" value="{{ city }}" onChange="{{ onCity }}" autocomplete="address-level2" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+</label>
+</div>
+<div style="display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:16px;background:#FFFFFF;border:1px solid #E4E4EA">
+<button role="switch" aria-checked="{{ includeAddr }}" aria-labelledby="lbl-inc" onClick="{{ toggleInclude }}" style="{{ trackStyle }}"><span style="{{ knobStyle }}"></span></button>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+<span id="lbl-inc" style="font-size:16px;font-weight:700">Ajouter l’adresse à l’événement calendrier</span>
+<span style="font-size:14px;color:#5C5C68">Le client la retrouve dans son agenda après l’ajout du rendez-vous.</span>
+</div>
+</div>
+</section>
+
+<section style="box-sizing:border-box;padding:28px;border-radius:24px;background:#F5F5F8;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.01em">Fuseau horaire</h2>
+<p style="margin:0;font-size:14px;color:#5C5C68">Détermine le « aujourd’hui » de la réservation et l’heure des événements calendrier.</p>
+</div>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Fuseau du lieu
+<select onChange="{{ onTz }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;background:#FFFFFF;font-size:16px;font-weight:500;color:#14141A">
+<sc-for list="{{ zones }}" as="z" hint-placeholder-count="3">
+<option value="{{ z.value }}" selected="{{ z.selected }}">{{ z.label }}</option>
+</sc-for>
+</select>
+</label>
+</section>
+
+</div>
+
+<aside style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font-size:18px;font-weight:700">Aperçu dans le calendrier du client</h2>
+<div style="box-sizing:border-box;padding:20px 24px;border-radius:20px;border:1px solid #E4E4EA;background:#FFFFFF;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:13px;font-weight:700;color:#5C5C68;text-transform:uppercase;letter-spacing:0.04em">Lundi 5 octobre</div>
+<div style="font-size:20px;line-height:1.25;font-weight:800;letter-spacing:-0.01em">{{ previewTitle }}</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C5C68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+<span>09:00 – 10:00</span>
+</div>
+<div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;font-weight:600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C5C68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+<sc-if value="{{ showAddress }}" hint-placeholder-val="{{ true }}">
+<span>{{ addressLine }}</span>
+</sc-if>
+<sc-if value="{{ noAddress }}" hint-placeholder-val="{{ false }}">
+<span style="color:#5C5C68;font-weight:500">{{ noAddressText }}</span>
+</sc-if>
+</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C5C68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+<sc-if value="{{ showPhone }}" hint-placeholder-val="{{ false }}">
+<span>{{ phoneLine }}</span>
+</sc-if>
+<sc-if value="{{ noPhone }}" hint-placeholder-val="{{ true }}">
+<span style="color:#5C5C68;font-weight:500">Aucun numéro renseigné</span>
+</sc-if>
+</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#5C5C68">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 0 1-3.4 0"/></svg>
+<span>Rappel 1 heure avant</span>
+</div>
+</div>
+<p style="margin:0;font-size:13px;color:#5C5C68">L’aperçu se met à jour pendant la saisie. Les événements déjà ajoutés par les clients ne sont pas modifiés.</p>
+</aside>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  state = {
+    company: 'Angel, Éveilleuse d’âmes',
+    phone: '',
+    street: '',
+    complement: '',
+    zip: '',
+    city: '',
+    includeAddr: true,
+    tz: 'Europe/Paris',
+    saved: false
+  };
+
+  set(patch) { this.setState({ ...patch, saved: false }); }
+
+  renderVals() {
+    const st = this.state;
+    const nameError = st.company.trim() === '';
+    const phoneRaw = st.phone.trim();
+    const phoneDigits = phoneRaw.replace(/\D/g, '');
+    const phoneError = phoneRaw !== '' && !(/^[0-9 +().-]{8,24}$/.test(phoneRaw) && phoneDigits.length >= 8);
+    const hasPhone = phoneRaw !== '' && !phoneError;
+    const blocked = nameError || phoneError;
+    const cityLine = (st.zip.trim() + ' ' + st.city.trim()).trim();
+    const addressLine = [st.street.trim(), st.complement.trim(), cityLine].filter(Boolean).join(', ');
+    const hasAddress = addressLine !== '';
+    const zones = [
+      { value: 'Europe/Paris', label: 'Europe/Paris (heure de Paris)' },
+      { value: 'Europe/Brussels', label: 'Europe/Brussels (heure de Bruxelles)' },
+      { value: 'Europe/Zurich', label: 'Europe/Zurich (heure de Zurich)' }
+    ].map((z) => ({ ...z, selected: z.value === st.tz }));
+    const on = st.includeAddr;
+    return {
+      company: st.company,
+      phone: st.phone,
+      phoneError,
+      phoneLine: phoneRaw,
+      showPhone: hasPhone,
+      noPhone: !hasPhone,
+      onPhone: (e) => this.set({ phone: e.target.value }),
+      street: st.street,
+      complement: st.complement,
+      zip: st.zip,
+      city: st.city,
+      zones,
+      includeAddr: on,
+      nameError,
+      onCompany: (e) => this.set({ company: e.target.value }),
+      onStreet: (e) => this.set({ street: e.target.value }),
+      onComplement: (e) => this.set({ complement: e.target.value }),
+      onZip: (e) => this.set({ zip: e.target.value }),
+      onCity: (e) => this.set({ city: e.target.value }),
+      onTz: (e) => this.set({ tz: e.target.value }),
+      toggleInclude: () => this.set({ includeAddr: !st.includeAddr }),
+      trackStyle: 'position:relative;flex:none;width:52px;height:32px;padding:0;border:0;border-radius:999px;cursor:pointer;background:' + (on ? '#5B3DF5' : '#9A9AA6'),
+      knobStyle: 'position:absolute;top:4px;width:24px;height:24px;border-radius:50%;background:#FFFFFF;left:' + (on ? '24px' : '4px'),
+      previewTitle: 'Rendez-vous — ' + (nameError ? '[nom de la société]' : st.company.trim()),
+      addressLine,
+      showAddress: hasAddress && on,
+      noAddress: !(hasAddress && on),
+      noAddressText: !hasAddress ? 'Aucune adresse renseignée' : 'L’adresse n’apparaîtra pas dans l’événement',
+      cannotSave: blocked,
+      saveLabel: st.saved ? 'Enregistré ✓' : 'Enregistrer',
+      saveStyle: 'min-height:48px;padding:0 28px;border:0;border-radius:999px;font-size:16px;font-weight:700;' + (blocked ? 'background:#E6E6EC;color:#5C5C68;cursor:default' : 'background:#14141A;color:#FFFFFF;cursor:pointer'),
+      save: () => { if (!blocked) this.setState({ saved: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { adminDb, check, need } from './supabase';
 import { WEEK_ORDER, hhmm } from '../ui/format';
+import { SETTINGS_COLUMNS, rowToSettings, setSettings, settingsToRow, type CompanySettings } from './settings';
 import type { Appointment, DayConfig } from './types';
 
 export async function getSession(): Promise<Session | null> {
@@ -85,6 +86,17 @@ export async function saveAvailability(a: Availability): Promise<void> {
   const db = need(adminDb);
   check(await db.rpc('save_availability', { p_days: a.days }));
   check(await db.from('settings').update({ slot_minutes: a.slotMinutes }).eq('id', true));
+}
+
+// ---------- Paramètres de la société ----------
+export async function loadSettings(): Promise<CompanySettings> {
+  const res = await need(adminDb).from('settings').select(SETTINGS_COLUMNS).eq('id', true).single();
+  return rowToSettings(check<Record<string, unknown>>(res as { data: Record<string, unknown>; error: null }));
+}
+
+export async function saveSettings(s: CompanySettings): Promise<void> {
+  check(await need(adminDb).from('settings').update(settingsToRow(s)).eq('id', true));
+  setSettings(s); // l'aperçu local (titre, contact) reflète tout de suite la sauvegarde
 }
 
 // ---------- Jours bloqués ----------

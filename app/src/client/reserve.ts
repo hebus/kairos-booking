@@ -6,6 +6,7 @@ import { capitalize, formatDay, fullName, hhmm, isValidProfile, type Profile } f
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import { go, type RenderFn } from '../router';
 import { addToCalendar } from './add-to-calendar';
+import { contactCard } from './contact';
 import { draft, resetDraft, takeFlash } from './draft';
 
 function backButton(onclick: () => void): HTMLElement {
@@ -134,6 +135,7 @@ export const renderDone: RenderFn = (root) => {
           ? h('p', { style: 'font-size:14px;font-weight:600;color:var(--ok-ink)' },
               'Votre profil a été créé : il sera utilisé pour vos prochaines réservations.')
           : null,
+        contactCard(),
         addToCalendar({ id: done.id, day: done.day, start: done.start, end: done.end }, { hint: true }),
         h('button', { class: 'btn btn-outline btn-block', onclick: () => { resetDraft(); go('/'); } }, 'Prendre un autre rendez-vous'),
         h('button', { class: 'link-btn', onclick: () => { resetDraft(); go('/rendez-vous'); } }, 'Voir mes rendez-vous')

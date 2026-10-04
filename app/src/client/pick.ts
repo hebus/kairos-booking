@@ -1,5 +1,5 @@
 // Écran d'accueil client : calendrier → créneaux → « Continuer ».
-import { BRAND } from '../config';
+import { getSettings } from '../data/settings';
 import { getOpenDays, getSlots, myAppointments } from '../data/booking';
 import { getCachedAppointments } from '../data/profile-store';
 import { configured } from '../data/supabase';
@@ -115,7 +115,7 @@ export const renderPick: RenderFn = (root) => {
     h('main', { class: 'client' },
       h('div', { class: 'client-top' },
         h('div', {},
-          h('div', { class: 'eyebrow' }, BRAND.company),
+          h('div', { class: 'eyebrow' }, getSettings().companyName),
           h('h1', {}, 'Prendre rendez-vous')),
         h('div', { class: 'client-actions' }, mineBtn, profileBtn)
       ),

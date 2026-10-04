@@ -8,6 +8,7 @@ import { capitalize, formatDay, hhmm, toIso } from '../ui/format';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import { go, type RenderFn } from '../router';
 import { addToCalendar } from './add-to-calendar';
+import { contactCard } from './contact';
 
 export const renderMine: RenderFn = (root) => {
   const todayIso = toIso(new Date());
@@ -87,6 +88,7 @@ export const renderMine: RenderFn = (root) => {
     fill(body,
       h('h1', {}, 'Mes rendez-vous'),
       missingConfig(),
+      contactCard(),
       notice ? banner(notice) : null,
       error ? banner(error, 'error') : null,
       loading && list.length === 0 ? h('p', { class: 'muted', role: 'status' }, 'Chargement…') : null,
