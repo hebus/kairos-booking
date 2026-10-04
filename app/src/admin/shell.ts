@@ -35,9 +35,9 @@ export function adminRoute(
       return;
     }
 
-    const main = h('div', { style: 'display:flex;flex-direction:column;gap:32px' });
+    const main = h('div', { class: 'admin-main' });
     root.append(
-      h('div', { class: 'admin' },
+      h('div', { class: 'admin', 'data-page': active },
         h('nav', { class: 'tabs', 'aria-label': 'Administration' },
           ...TABS.map((t) =>
             h('a', {

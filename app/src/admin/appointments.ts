@@ -4,6 +4,7 @@ import type { Appointment } from '../data/types';
 import { emptyState, fill, h, icon } from '../ui/dom';
 import { capitalize, digitsOf, formatDay, fullName, hhmm, toIso } from '../ui/format';
 import { banner, errorMessage } from '../ui/notice';
+import { MOBILE_QUERY } from '../ui/viewport';
 import type { Cleanup } from '../router';
 
 export function buildAppointments(main: HTMLElement): Cleanup {
@@ -99,7 +100,7 @@ export function buildAppointments(main: HTMLElement): Cleanup {
             onclick: () => ask(a.id)
           }, icon('trash', 18), h('span', { class: 'lbl' }, 'Supprimer'))
     );
-    if (asked || !window.matchMedia('(max-width: 720px)').matches) return card;
+    if (asked || !window.matchMedia(MOBILE_QUERY).matches) return card;
     // Mobile : glisser la carte vers la droite ouvre la même confirmation que le bouton (sans supprimer d'emblée).
     const reveal = h('div', { class: 'appt-swipe-bg', 'aria-hidden': 'true' }, icon('trash', 20), 'Supprimer');
     enableSwipe(card, () => ask(a.id));

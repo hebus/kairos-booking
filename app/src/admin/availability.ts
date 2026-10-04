@@ -42,7 +42,7 @@ export function buildAvailability(main: HTMLElement): Cleanup {
   let saving = false;
   let disposed = false;
 
-  const view = h('div', { style: 'display:flex;flex-direction:column;gap:32px' });
+  const view = h('div', { class: 'avail-view' });
   main.append(view);
 
   const day = (): DayConfig | undefined => data?.days.find((d) => d.weekday === sel);
@@ -92,13 +92,14 @@ export function buildAvailability(main: HTMLElement): Cleanup {
         status = null;
       });
       parts.push(
-        h('div', { class: 'time-fields' },
-          timeInput('Heure de début', d.start_time, (v) => edit((x) => { x.start_time = v; })),
-          timeInput('Heure de fin', d.end_time, (v) => edit((x) => { x.end_time = v; }))),
-        h('label', { class: 'field' }, 'Durée d’un créneau (tous les jours en « journée entière »)', duration)
+        h('div', { class: 'full-fields' },
+          h('div', { class: 'time-fields' },
+            timeInput('Heure de début', d.start_time, (v) => edit((x) => { x.start_time = v; })),
+            timeInput('Heure de fin', d.end_time, (v) => edit((x) => { x.end_time = v; }))),
+          h('label', { class: 'field' }, 'Durée d’un créneau (tous les jours en « journée entière »)', duration))
       );
     } else {
-      parts.push(h('div', { style: 'display:flex;flex-direction:column;gap:12px' },
+      parts.push(h('div', { class: 'slot-list' },
         ...d.slots.map((s, i) =>
           h('div', { class: 'range-row' },
             timeInput('', s.start_time, (v) => edit(() => { s.start_time = v; }), `Début du créneau ${i + 1}`),
@@ -160,7 +161,7 @@ export function buildAvailability(main: HTMLElement): Cleanup {
             'aria-pressed': d.weekday === sel ? 'true' : 'false',
             'aria-label': `${name}, ${d.worked ? 'travaillé' : 'fermé'}`,
             onclick: () => { sel = d.weekday; render(); }
-          }, h('span', {}, name.slice(0, 3)), h('i', { class: 'dot' + (d.worked ? ' on' : '') }));
+          }, h('span', { class: 'd-short' }, name.slice(0, 3)), h('span', { class: 'd-long' }, name), h('i', { class: 'dot' + (d.worked ? ' on' : '') }));
         })
       ),
       h('div', { class: 'cols' },
