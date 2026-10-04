@@ -5,7 +5,7 @@ import { h, icon } from '../ui/dom';
 import { capitalize, formatDay, fullName, isValidProfile, type Profile } from '../ui/format';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import { go, type RenderFn } from '../router';
-import { draft, resetDraft } from './draft';
+import { draft, resetDraft, takeFlash } from './draft';
 
 function backButton(onclick: () => void): HTMLElement {
   return h('button', { class: 'back', onclick }, icon('chevron-left'), 'Retour');
@@ -38,6 +38,7 @@ export const renderReserve: RenderFn = (root) => {
   const showError = (e: unknown): void => errorBox.replaceChildren(banner(errorMessage(e), 'error'));
 
   if (existing) {
+    const flash = takeFlash(); // ex. « Profil mis à jour » après « Modifier mon profil »
     const cta = h('button', { class: 'btn btn-dark btn-block' }, 'Confirmer le rendez-vous');
     cta.addEventListener('click', () => {
       cta.setAttribute('disabled', '');
@@ -50,6 +51,7 @@ export const renderReserve: RenderFn = (root) => {
         h('div', { class: 'client-body' },
           h('h1', {}, 'Confirmer le rendez-vous'),
           missingConfig(),
+          flash ? banner(flash) : null,
           summary(day, slot.start),
           h('div', { class: 'card', style: 'display:flex;flex-direction:column;gap:12px' },
             h('div', { class: 'muted', style: 'font-size:14px;font-weight:700' }, 'Réservé avec votre profil'),
