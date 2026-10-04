@@ -213,7 +213,7 @@ a { color: inherit; }
 .menu-text span { font-size: 14px; color: var(--muted); }
 .menu-item > svg:last-child { flex: none; color: var(--muted); }
 
-@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+@media (max-width: 768px), (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   .admin { padding: 16px 16px calc(40px + env(safe-area-inset-bottom)); gap: 20px; }
   .admin h1 { font-size: 26px; }
   .tabs, .desktop-only, .admin .eyebrow { display: none; }
