@@ -96,7 +96,8 @@ export function buildAvailability(main: HTMLElement): Cleanup {
           h('div', { class: 'time-fields' },
             timeInput('Heure de début', d.start_time, (v) => edit((x) => { x.start_time = v; })),
             timeInput('Heure de fin', d.end_time, (v) => edit((x) => { x.end_time = v; }))),
-          h('label', { class: 'field' }, 'Durée d’un créneau (tous les jours en « journée entière »)', duration))
+          h('label', { class: 'field' }, 'Durée d’un créneau', duration),
+          h('p', { class: 'muted full-note' }, 'La durée s’applique à tous les jours en « journée entière ».'))
       );
     } else {
       parts.push(h('div', { class: 'slot-list' },
