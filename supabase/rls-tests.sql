@@ -120,8 +120,8 @@ begin
 
   -- 5. admin : voit tout, bloque un jour, supprime
   perform pg_temp.act_as(admin_id);
-  select count(*) into n from public.appointments;
-  perform pg_temp.ensure(n = 1, 'admin voit les rendez-vous de tous');
+  select count(*) into n from public.appointments where id = appt_id;
+  perform pg_temp.ensure(n = 1, 'admin voit le rendez-vous d''un client');
   insert into public.blocked_days values (monday);
   select count(*) into n from public.available_slots(monday);
   perform pg_temp.ensure(n = 0, 'jour bloqué : aucun créneau');
@@ -143,7 +143,7 @@ begin
   perform pg_temp.ensure(n = 1, 'annulation visible par l''admin (non lue)');
   update public.appointments set seen_by_admin = true where id = appt_id;
   delete from public.appointments where id = appt_id;
-  select count(*) into n from public.appointments;
+  select count(*) into n from public.appointments where client_id in (client_a, client_b);
   perform pg_temp.ensure(n = 0, 'admin peut supprimer un rendez-vous');
 
   -- 7. paramètres de la société : lecture publique, écriture admin, contraintes
