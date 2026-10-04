@@ -203,7 +203,8 @@ a { color: inherit; }
 .full-fields { gap: 24px; }
 .full-note { font-size: 14px; margin-top: -12px; }
 .slot-list { gap: 12px; }
-.d-long { display: none; }
+.d-long, .landscape-only { display: none; }
+.error-slot:empty { display: none; }
 .menu-list { display: flex; flex-direction: column; gap: 10px; }
 .menu-item { min-height: 76px; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; }
 .menu-icon { flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: var(--accent-soft); color: var(--accent-ink); }
@@ -244,7 +245,7 @@ a { color: inherit; }
   .appt-ask .btn { width: 100%; flex: none; }
 
   /* Disponibilités : bandeau des 7 jours, l'éditeur reste visible dessous */
-  .col-list { display: none; }
+  .admin[data-page='disponibilites'] .col-list { display: none; }
   .day-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
   .day-chip { min-width: 0; min-height: 60px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 2px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; }
   .day-chip.is-active { border-color: var(--ink); background: var(--ink); color: #fff; }
@@ -305,4 +306,30 @@ a { color: inherit; }
 }
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   .admin[data-page='disponibilites'] .slot-list .range-row input { padding: 0 6px; font-size: 15px; }
+}
+
+/* ---------- Jours bloqués : téléphone en paysage ----------
+   Le calendrier (jusqu'à 6 semaines de 44 px) prend toute la hauteur à droite ; la navigation de mois
+   monte dans la barre du haut ; retour, titre, compteur et jours bloqués sont à gauche. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .admin[data-page='jours-bloques'] {
+    height: 100dvh; min-height: 0; overflow: hidden; gap: 0 16px;
+    padding: 0 max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left));
+    display: grid; grid-template-columns: 296px minmax(0, 1fr); grid-template-rows: 60px minmax(0, 1fr);
+  }
+  .admin[data-page='jours-bloques'] :is(.admin-main, .cols, .panel-cal, .cal) { display: contents; }
+  .admin[data-page='jours-bloques'] .back-link { grid-area: 1 / 1; align-self: center; justify-self: start; width: 92px; margin: 0 0 0 -8px; }
+  .admin[data-page='jours-bloques'] .admin-head { grid-area: 1 / 1; align-self: center; justify-self: start; margin-left: 100px; }
+  .admin[data-page='jours-bloques'] .admin-head h1 { font-size: 20px; white-space: nowrap; }
+  .admin[data-page='jours-bloques'] .admin-head p, .admin[data-page='jours-bloques'] .panel-cal > p { display: none; }
+  .admin[data-page='jours-bloques'] .error-slot:empty { display: none; }
+  .admin[data-page='jours-bloques'] .error-slot:not(:empty) { position: fixed; z-index: 5; left: 16px; right: 16px; bottom: 8px; }
+  .admin[data-page='jours-bloques'] .cal-head { grid-area: 1 / 2; align-self: center; justify-content: center; gap: 8px; }
+  .admin[data-page='jours-bloques'] .cal-title { min-width: 150px; text-align: center; }
+  .admin[data-page='jours-bloques'] .cal-nav { background: var(--surface); }
+  .admin[data-page='jours-bloques'] .cal-nav:disabled { background: transparent; }
+  .admin[data-page='jours-bloques'] .cal-grid { grid-area: 2 / 2; align-self: start; padding: 8px 12px; border-radius: 20px; background: var(--surface); row-gap: 2px; }
+  .admin[data-page='jours-bloques'] .cal-dow { height: 24px; }
+  .admin[data-page='jours-bloques'] .col-list { grid-area: 2 / 1; min-height: 0; overflow-y: auto; padding-right: 4px; gap: 12px; }
+  .admin[data-page='jours-bloques'] .landscape-only { display: block; font-size: 13px; line-height: 1.4; }
 }

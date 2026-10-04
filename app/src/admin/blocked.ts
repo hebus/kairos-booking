@@ -16,7 +16,7 @@ export function buildBlocked(main: HTMLElement): Cleanup {
   let disposed = false;
 
   const side = h('div', { class: 'col-list', style: 'gap:12px' });
-  const errorBox = h('div');
+  const errorBox = h('div', { class: 'error-slot' });
 
   const calendar = createCalendar({
     today,
@@ -62,7 +62,10 @@ export function buildBlocked(main: HTMLElement): Cleanup {
         h('div', { class: 'chip' },
           h('span', {}, capitalize(formatDay(d))),
           h('button', { 'aria-label': `Débloquer le ${formatDay(d)}`, onclick: () => void toggle(d) }, icon('x', 16, 2.4))
-        )))
+        ))),
+      // Paysage : l'en-tête et la légende laissent la place au calendrier, ces textes passent dans cette colonne.
+      h('p', { class: 'muted landscape-only' }, 'Les clients ne pourront pas réserver un jour bloqué, même s’il fait partie de la semaine type. Touchez une date pour la bloquer ou la débloquer.'),
+      h('p', { class: 'muted landscape-only' }, 'Les jours passés et les jours fermés dans la semaine type sont grisés.')
     );
   }
 
