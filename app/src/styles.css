@@ -198,6 +198,11 @@ a { color: inherit; }
 .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .admin-head > .head-row { flex-direction: row; }
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* Disponibilités : la liste des jours et l'éditeur restent côte à côte (jamais l'éditeur sous la liste) ;
+   en dessous de 768 px, la mise en page mobile remplace la liste par un bandeau. */
+.admin[data-page='disponibilites'] .cols { flex-wrap: nowrap; }
+.admin[data-page='disponibilites'] .col-list { flex: 0 1 340px; }
+.admin[data-page='disponibilites'] .panel { flex: 1 1 0; }
 .admin-main, .avail-view { display: flex; flex-direction: column; gap: 32px; }
 .full-fields, .slot-list { display: flex; flex-direction: column; }
 .full-fields { gap: 24px; }
