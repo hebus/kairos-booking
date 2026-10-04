@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Admin — Disponibilités</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid #5B3DF5;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:100%;max-width:1200px;min-height:900px;margin:0 auto;box-sizing:border-box;padding:40px 40px 56px;display:flex;flex-direction:column;gap:32px;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#14141A;background:#FFFFFF">
+
+<nav aria-label="Administration" style="display:flex;flex-wrap:wrap;gap:8px">
+<a href="Main.dc.html" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#F5F5F8;color:#14141A;font-size:15px;font-weight:700;text-decoration:none">Rendez-vous</a>
+<a href="Disponibilites.dc.html" aria-current="page" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#14141A;color:#FFFFFF;font-size:15px;font-weight:700;text-decoration:none">Disponibilités</a>
+<a href="Jours-bloques.dc.html" style="min-height:44px;box-sizing:border-box;display:flex;align-items:center;padding:0 20px;border-radius:999px;background:#F5F5F8;color:#14141A;font-size:15px;font-weight:700;text-decoration:none">Jours bloqués</a>
+</nav>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:14px;font-weight:700;color:#5B3DF5;letter-spacing:0.02em">Administration</div>
+<h1 style="margin:0;font-size:36px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Disponibilités</h1>
+<p style="margin:0;font-size:16px;color:#5C5C68">Choisissez les jours travaillés et les plages horaires ouvertes à la réservation.</p>
+</div>
+<button onClick="{{ save }}" style="min-height:48px;padding:0 28px;border:0;border-radius:999px;background:#14141A;color:#FFFFFF;font-size:16px;font-weight:700">{{ saveLabel }}</button>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0 0 4px;font-size:18px;font-weight:700">Semaine type</h2>
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+<div style="{{ d.rowStyle }}">
+<button role="switch" aria-checked="{{ d.worked }}" aria-label="{{ d.switchLabel }}" onClick="{{ d.toggle }}" style="{{ d.trackStyle }}"><span style="{{ d.knobStyle }}"></span></button>
+<button onClick="{{ d.select }}" style="flex:1;min-width:0;min-height:56px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0;border:0;background:transparent;text-align:left;color:#14141A">
+<span style="font-size:16px;font-weight:700">{{ d.label }}</span>
+<span style="font-size:14px;color:#5C5C68">{{ d.summary }}</span>
+</button>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5C5C68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</div>
+</sc-for>
+</div>
+
+<div style="flex:1.25 1 440px;min-width:0;box-sizing:border-box;padding:32px;border-radius:24px;background:#F5F5F8;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-0.01em">{{ sel.label }}</h2>
+<p style="margin:0;font-size:15px;color:#5C5C68">{{ sel.summary }}</p>
+</div>
+
+<sc-if value="{{ sel.worked }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:24px">
+<div role="group" aria-label="Type de disponibilité" style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#E6E6EC">
+<button aria-pressed="{{ sel.isFull }}" onClick="{{ setFull }}" style="{{ fullBtnStyle }}">Journée entière</button>
+<button aria-pressed="{{ sel.isSlots }}" onClick="{{ setSlots }}" style="{{ slotsBtnStyle }}">Créneaux</button>
+</div>
+
+<sc-if value="{{ sel.isFull }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<label style="flex:1 1 160px;display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Heure de début
+<input type="time" value="{{ sel.start }}" onChange="{{ onStart }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #D4D4DC;border-radius:14px;background:#FFFFFF;font-family:inherit;font-size:18px;font-weight:600;color:#14141A">
+</label>
+<label style="flex:1 1 160px;display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Heure de fin
+<input type="time" value="{{ sel.end }}" onChange="{{ onEnd }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #D4D4DC;border-radius:14px;background:#FFFFFF;font-family:inherit;font-size:18px;font-weight:600;color:#14141A">
+</label>
+</div>
+</sc-if>
+
+<sc-if value="{{ sel.isSlots }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ slots }}" as="s" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:16px;background:#FFFFFF;border:1px solid #E4E4EA">
+<input type="time" aria-label="{{ s.startLabel }}" value="{{ s.start }}" onChange="{{ s.onStart }}" style="flex:1;min-width:0;box-sizing:border-box;min-height:44px;padding:0 12px;border:1px solid #D4D4DC;border-radius:12px;font-family:inherit;font-size:16px;font-weight:600;color:#14141A">
+<span style="color:#5C5C68;font-weight:600">à</span>
+<input type="time" aria-label="{{ s.endLabel }}" value="{{ s.end }}" onChange="{{ s.onEnd }}" style="flex:1;min-width:0;box-sizing:border-box;min-height:44px;padding:0 12px;border:1px solid #D4D4DC;border-radius:12px;font-family:inherit;font-size:16px;font-weight:600;color:#14141A">
+<button aria-label="{{ s.removeLabel }}" onClick="{{ s.remove }}" style="width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border:0;border-radius:12px;background:#F5F5F8;color:#14141A">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button>
+</div>
+</sc-for>
+<button onClick="{{ addSlot }}" style="min-height:52px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #B9B0F7;border-radius:16px;background:transparent;color:#4A2FD6;font-size:16px;font-weight:700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Ajouter un créneau
+</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ sel.closed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:24px;border-radius:16px;background:#FFFFFF;border:1px solid #E4E4EA">
+<p style="margin:0;font-size:16px;color:#5C5C68">Ce jour n’est pas travaillé : aucun rendez-vous ne peut être pris.</p>
+<button onClick="{{ openDay }}" style="min-height:48px;padding:0 24px;border:0;border-radius:999px;background:#5B3DF5;color:#FFFFFF;font-size:16px;font-weight:700">Ouvrir ce jour</button>
+</div>
+</sc-if>
+</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  state = {
+    sel: 'mon',
+    saved: false,
+    days: [
+      { key: 'mon', label: 'Lundi', worked: true, mode: 'full', start: '09:00', end: '18:00', slots: [] },
+      { key: 'tue', label: 'Mardi', worked: true, mode: 'full', start: '09:00', end: '18:00', slots: [] },
+      { key: 'wed', label: 'Mercredi', worked: true, mode: 'slots', start: '09:00', end: '18:00', slots: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '17:30' }] },
+      { key: 'thu', label: 'Jeudi', worked: true, mode: 'full', start: '09:00', end: '18:00', slots: [] },
+      { key: 'fri', label: 'Vendredi', worked: true, mode: 'full', start: '09:00', end: '16:00', slots: [] },
+      { key: 'sat', label: 'Samedi', worked: false, mode: 'full', start: '09:00', end: '13:00', slots: [] },
+      { key: 'sun', label: 'Dimanche', worked: false, mode: 'full', start: '09:00', end: '13:00', slots: [] }
+    ]
+  };
+
+  upd(key, fn) {
+    this.setState({ saved: false, days: this.state.days.map((d) => (d.key === key ? fn(d) : d)) });
+  }
+
+  summary(d) {
+    if (!d.worked) return 'Fermé';
+    if (d.mode === 'full') return 'Journée entière · ' + d.start + ' – ' + d.end;
+    const n = d.slots.length;
+    return n === 0 ? 'Aucun créneau défini' : n + (n > 1 ? ' créneaux' : ' créneau') + ' · ' + d.slots.map((s) => s.start + '–' + s.end).join(', ');
+  }
+
+  renderVals() {
+    const st = this.state;
+    const cur = st.days.find((d) => d.key === st.sel);
+    const key = cur.key;
+    const seg = (on) =>
+      'flex:1;min-height:44px;border:0;border-radius:999px;font-size:15px;font-weight:700;' +
+      (on ? 'background:#FFFFFF;color:#14141A;box-shadow:0 1px 3px rgba(20,20,26,0.18)' : 'background:transparent;color:#5C5C68');
+    const days = st.days.map((d) => {
+      const active = d.key === st.sel;
+      return {
+        label: d.label,
+        worked: d.worked,
+        summary: this.summary(d),
+        switchLabel: d.label + ' : jour travaillé',
+        rowStyle:
+          'display:flex;align-items:center;gap:16px;padding:8px 20px 8px 16px;border-radius:20px;box-sizing:border-box;background:#FFFFFF;border:2px solid ' +
+          (active ? '#5B3DF5' : '#E4E4EA'),
+        trackStyle:
+          'position:relative;flex:none;width:52px;height:32px;padding:0;border:0;border-radius:999px;background:' + (d.worked ? '#5B3DF5' : '#9A9AA6'),
+        knobStyle:
+          'position:absolute;top:4px;width:24px;height:24px;border-radius:50%;background:#FFFFFF;left:' + (d.worked ? '24px' : '4px'),
+        toggle: () => this.upd(d.key, (x) => ({ ...x, worked: !x.worked })),
+        select: () => this.setState({ sel: d.key })
+      };
+    });
+    const slots = cur.slots.map((s, i) => ({
+      start: s.start,
+      end: s.end,
+      startLabel: 'Début du créneau ' + (i + 1),
+      endLabel: 'Fin du créneau ' + (i + 1),
+      removeLabel: 'Supprimer le créneau ' + (i + 1),
+      onStart: (e) => this.upd(key, (x) => ({ ...x, slots: x.slots.map((y, j) => (j === i ? { ...y, start: e.target.value } : y)) })),
+      onEnd: (e) => this.upd(key, (x) => ({ ...x, slots: x.slots.map((y, j) => (j === i ? { ...y, end: e.target.value } : y)) })),
+      remove: () => this.upd(key, (x) => ({ ...x, slots: x.slots.filter((y, j) => j !== i) }))
+    }));
+    return {
+      days,
+      slots,
+      sel: {
+        label: cur.label,
+        summary: this.summary(cur),
+        worked: cur.worked,
+        closed: !cur.worked,
+        isFull: cur.mode === 'full',
+        isSlots: cur.mode === 'slots',
+        start: cur.start,
+        end: cur.end
+      },
+      fullBtnStyle: seg(cur.mode === 'full'),
+      slotsBtnStyle: seg(cur.mode === 'slots'),
+      saveLabel: st.saved ? 'Enregistré ✓' : 'Enregistrer',
+      save: () => this.setState({ saved: true }),
+      setFull: () => this.upd(key, (x) => ({ ...x, mode: 'full' })),
+      setSlots: () => this.upd(key, (x) => ({ ...x, mode: 'slots' })),
+      onStart: (e) => this.upd(key, (x) => ({ ...x, start: e.target.value })),
+      onEnd: (e) => this.upd(key, (x) => ({ ...x, end: e.target.value })),
+      openDay: () => this.upd(key, (x) => ({ ...x, worked: true })),
+      addSlot: () =>
+        this.upd(key, (x) => {
+          const last = x.slots[x.slots.length - 1];
+          const start = last ? last.end : '09:00';
+          const h = Math.min(parseInt(start.slice(0, 2), 10) + 1, 23);
+          return { ...x, slots: x.slots.concat([{ start, end: String(h).padStart(2, '0') + start.slice(2) }]) };
+        })
+    };
+  }
+}
+</script>
+</body>
+</html>

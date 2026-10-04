@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Client — Réservation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid #5B3DF5;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#14141A;background:#FFFFFF">
+
+<sc-if value="{{ isPick }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="padding:16px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:8px">
+<h1 style="margin:0;font-size:20px;line-height:1.2;font-weight:800;letter-spacing:-0.01em">Prendre rendez-vous</h1>
+<div style="display:flex;gap:8px">
+<button aria-label="{{ mineLabel }}" title="Mes rendez-vous" onClick="{{ openMine }}" style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:#F5F5F8;color:#14141A">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+<sc-if value="{{ hasUpcoming }}" hint-placeholder-val="{{ true }}">
+<span aria-hidden="true" style="position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;box-sizing:border-box;padding:0 5px;border-radius:999px;background:#5B3DF5;color:#FFFFFF;font-size:12px;font-weight:700;line-height:20px;text-align:center">{{ upcomingCount }}</span>
+</sc-if>
+</button>
+<button aria-label="{{ profileBtnLabel }}" title="{{ profileBtnLabel }}" onClick="{{ openProfileFromPick }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:#EEEBFF;color:#3B22B8">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg>
+</button>
+</div>
+</div>
+
+<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="margin:12px 24px 0;padding:12px 16px;border-radius:14px;background:#E3F3EA;color:#14542F;font-size:14px;font-weight:600;line-height:1.4">{{ notice }}</div>
+</sc-if>
+
+<div style="padding:8px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<button aria-label="Mois précédent" onClick="{{ prevMonth }}" style="{{ prevStyle }}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</button>
+<div style="font-size:17px;font-weight:700">{{ monthLabel }}</div>
+<button aria-label="Mois suivant" onClick="{{ nextMonth }}" style="{{ nextStyle }}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</button>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(7, minmax(0, 1fr));row-gap:4px">
+<sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7">
+<div style="height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#5C5C68">{{ w }}</div>
+</sc-for>
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="35">
+<div style="display:flex;align-items:center;justify-content:center">
+<button disabled="{{ c.disabled }}" aria-pressed="{{ c.selected }}" aria-label="{{ c.aria }}" onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.label }}</button>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex:1;min-height:0;overflow-y:auto;margin-top:12px;padding:16px 24px 12px;border-top:1px solid #E4E4EA;display:flex;flex-direction:column;gap:12px">
+<sc-if value="{{ noDay }}" hint-placeholder-val="{{ false }}">
+<p style="margin:0;font-size:15px;color:#5C5C68">Sélectionnez un jour pour voir les créneaux disponibles.</p>
+</sc-if>
+<sc-if value="{{ hasDay }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font-size:16px;font-weight:700">Créneaux du {{ dayLabel }}</h2>
+<div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px">
+<sc-for list="{{ slots }}" as="s" hint-placeholder-count="6">
+<button aria-pressed="{{ s.selected }}" onClick="{{ s.pick }}" style="{{ s.style }}">{{ s.time }}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+
+<div style="padding:12px 24px 24px;border-top:1px solid #E4E4EA;background:#FFFFFF">
+<button disabled="{{ cannotContinue }}" onClick="{{ confirm }}" style="{{ ctaStyle }}">{{ ctaLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="padding:20px 24px 0">
+<button onClick="{{ back }}" style="min-height:44px;display:flex;align-items:center;gap:4px;padding:0 12px 0 0;border:0;background:transparent;color:#14141A;font-size:15px;font-weight:600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+Retour
+</button>
+</div>
+<div style="flex:1;min-height:0;overflow-y:auto;padding:8px 24px 16px;display:flex;flex-direction:column;gap:24px">
+<h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Confirmer le rendez-vous</h1>
+<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="padding:12px 16px;border-radius:14px;background:#E3F3EA;color:#14542F;font-size:14px;font-weight:600;line-height:1.4">{{ notice }}</div>
+</sc-if>
+<div style="padding:16px 20px;border-radius:20px;background:#F5F5F8;display:flex;flex-direction:column;gap:2px">
+<div style="font-size:15px;font-weight:600;color:#5C5C68">{{ summaryDay }}</div>
+<div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#4A2FD6">{{ summaryTime }}</div>
+</div>
+<div style="padding:16px 20px;border-radius:20px;border:1px solid #E4E4EA;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:14px;font-weight:700;color:#5C5C68">Réservé avec votre profil</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font-size:18px;font-weight:700">{{ profileName }}</div>
+<div style="font-size:16px;color:#5C5C68">{{ profilePhone }}</div>
+</div>
+<button onClick="{{ openProfileFromConfirm }}" style="align-self:flex-start;min-height:44px;padding:0;border:0;background:transparent;color:#4A2FD6;font-size:15px;font-weight:700;text-decoration:underline">Modifier mon profil</button>
+</div>
+</div>
+<div style="padding:12px 24px 24px;border-top:1px solid #E4E4EA;background:#FFFFFF">
+<button onClick="{{ bookWithProfile }}" style="width:100%;min-height:56px;border:0;border-radius:999px;background:#14141A;color:#FFFFFF;font-size:16px;font-weight:700">Confirmer le rendez-vous</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="padding:20px 24px 0">
+<button onClick="{{ back }}" style="min-height:44px;display:flex;align-items:center;gap:4px;padding:0 12px 0 0;border:0;background:transparent;color:#14141A;font-size:15px;font-weight:600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+Retour
+</button>
+</div>
+<div style="flex:1;min-height:0;overflow-y:auto;padding:8px 24px 16px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Vos coordonnées</h1>
+<p style="margin:0;font-size:15px;color:#5C5C68">Elles seront transmises au professionnel et enregistrées dans votre profil pour vos prochaines réservations.</p>
+</div>
+<div style="padding:16px 20px;border-radius:20px;background:#F5F5F8;display:flex;flex-direction:column;gap:2px">
+<div style="font-size:15px;font-weight:600;color:#5C5C68">{{ summaryDay }}</div>
+<div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#4A2FD6">{{ summaryTime }}</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Prénom
+<input type="text" autocomplete="given-name" value="{{ first }}" onChange="{{ onFirst }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Nom
+<input type="text" autocomplete="family-name" value="{{ last }}" onChange="{{ onLast }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Numéro de téléphone
+<input type="tel" autocomplete="tel" value="{{ phone }}" onChange="{{ onPhone }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+</div>
+</div>
+<div style="padding:12px 24px 24px;border-top:1px solid #E4E4EA;background:#FFFFFF">
+<button disabled="{{ cannotBook }}" onClick="{{ book }}" style="{{ bookStyle }}">Confirmer et créer mon profil</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="padding:20px 24px 0">
+<button onClick="{{ backFromProfile }}" style="min-height:44px;display:flex;align-items:center;gap:4px;padding:0 12px 0 0;border:0;background:transparent;color:#14141A;font-size:15px;font-weight:600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+Retour
+</button>
+</div>
+<div style="flex:1;min-height:0;overflow-y:auto;padding:8px 24px 16px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">{{ profileTitle }}</h1>
+<p style="margin:0;font-size:15px;color:#5C5C68">{{ profileHint }}</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Prénom
+<input type="text" autocomplete="given-name" value="{{ pf }}" onChange="{{ onPf }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Nom
+<input type="text" autocomplete="family-name" value="{{ pl }}" onChange="{{ onPl }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+<label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Numéro de téléphone
+<input type="tel" autocomplete="tel" value="{{ pp }}" onChange="{{ onPp }}" style="box-sizing:border-box;width:100%;min-height:52px;padding:0 16px;border:1px solid #BDBDC8;border-radius:14px;font-family:inherit;font-size:16px;color:#14141A">
+</label>
+</div>
+</div>
+<div style="padding:12px 24px 24px;border-top:1px solid #E4E4EA;background:#FFFFFF">
+<button disabled="{{ cannotSaveProfile }}" onClick="{{ saveProfile }}" style="{{ saveProfileStyle }}">{{ saveProfileLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMine }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="padding:20px 24px 0">
+<button onClick="{{ backToPick }}" style="min-height:44px;display:flex;align-items:center;gap:4px;padding:0 12px 0 0;border:0;background:transparent;color:#14141A;font-size:15px;font-weight:600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+Retour
+</button>
+</div>
+<div style="flex:1;min-height:0;overflow-y:auto;padding:8px 24px 24px;display:flex;flex-direction:column;gap:20px">
+<h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Mes rendez-vous</h1>
+<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="padding:12px 16px;border-radius:14px;background:#E3F3EA;color:#14542F;font-size:14px;font-weight:600;line-height:1.4">{{ notice }}</div>
+</sc-if>
+<sc-if value="{{ noAppts }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px 8px;text-align:center">
+<div style="width:88px;height:88px;border-radius:50%;background:#EEEBFF;display:flex;align-items:center;justify-content:center">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4A2FD6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16M9 15h6"/></svg>
+</div>
+<h2 style="margin:0;font-size:20px;font-weight:800">Aucun rendez-vous</h2>
+<p style="margin:0;font-size:15px;line-height:1.5;color:#5C5C68">Les rendez-vous que vous réservez apparaissent ici.</p>
+<button onClick="{{ backToPick }}" style="min-height:52px;padding:0 28px;border:0;border-radius:999px;background:#14141A;color:#FFFFFF;font-size:16px;font-weight:700">Prendre rendez-vous</button>
+</div>
+</sc-if>
+<sc-if value="{{ hasUpcoming }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font-size:16px;font-weight:700">À venir · {{ upcomingCount }}</h2>
+<sc-for list="{{ appts }}" as="a" hint-placeholder-count="2">
+<div style="padding:16px 20px;border-radius:20px;border:1px solid #E4E4EA;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font-size:16px;font-weight:700">{{ a.day }}</div>
+<div style="font-size:14px;color:#14542F;font-weight:600">Confirmé</div>
+</div>
+<div style="padding:10px 14px;border-radius:14px;background:#EEEBFF;color:#3B22B8;font-size:18px;font-weight:800">{{ a.time }}</div>
+</div>
+<sc-if value="{{ a.idle }}" hint-placeholder-val="{{ true }}">
+<button aria-label="{{ a.cancelLabel }}" onClick="{{ a.ask }}" style="align-self:flex-start;min-height:44px;padding:0;border:0;background:transparent;color:#B42318;font-size:15px;font-weight:700;text-decoration:underline">Annuler ce rendez-vous</button>
+</sc-if>
+<sc-if value="{{ a.asking }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:12px;padding-top:12px;border-top:1px solid #E4E4EA">
+<span style="font-size:15px;font-weight:600">Annuler ce rendez-vous ? Le professionnel en sera averti.</span>
+<div style="display:flex;gap:8px">
+<button onClick="{{ a.keep }}" style="flex:1;min-height:44px;border:2px solid #14141A;border-radius:999px;background:#FFFFFF;color:#14141A;font-size:15px;font-weight:700">Garder</button>
+<button onClick="{{ a.confirmCancel }}" style="flex:1;min-height:44px;border:0;border-radius:999px;background:#B42318;color:#FFFFFF;font-size:15px;font-weight:700">Annuler</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ hasPast }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font-size:16px;font-weight:700">Passés</h2>
+<sc-for list="{{ past }}" as="a" hint-placeholder-count="1">
+<div style="padding:16px 20px;border-radius:20px;border:1px solid #E4E4EA;background:#F5F5F8;display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font-size:16px;font-weight:700;color:#5C5C68">{{ a.day }}</div>
+<div style="font-size:14px;color:#5C5C68">Terminé</div>
+</div>
+<div style="padding:10px 14px;border-radius:14px;background:#E6E6EC;color:#3F3F4A;font-size:18px;font-weight:800">{{ a.time }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 24px;text-align:center">
+<div style="width:72px;height:72px;border-radius:50%;background:#EEEBFF;display:flex;align-items:center;justify-content:center">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4A2FD6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+</div>
+<h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Rendez-vous confirmé</h1>
+<p style="margin:0;font-size:16px;color:#5C5C68">Merci {{ doneName }}, nous vous attendons.</p>
+<div style="width:100%;box-sizing:border-box;padding:20px;border-radius:20px;background:#F5F5F8;display:flex;flex-direction:column;gap:4px">
+<div style="font-size:18px;font-weight:700">{{ doneDay }}</div>
+<div style="font-size:32px;font-weight:800;letter-spacing:-0.02em;color:#4A2FD6">{{ doneTime }}</div>
+</div>
+<sc-if value="{{ justCreated }}" hint-placeholder-val="{{ false }}">
+<p style="margin:0;font-size:14px;font-weight:600;color:#14542F">Votre profil a été créé : il sera utilisé pour vos prochaines réservations.</p>
+</sc-if>
+<button onClick="{{ restart }}" style="width:100%;min-height:52px;border:2px solid #14141A;border-radius:999px;background:#FFFFFF;color:#14141A;font-size:16px;font-weight:700">Prendre un autre rendez-vous</button>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"hasProfile":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = {
+    step: 'pick', month: 0, date: null, time: null,
+    first: '', last: '', phone: '',
+    profile: null, pf: '', pl: '', pp: '', from: 'pick',
+    appts: [], cancelled: [], asking: null, notice: '', justCreated: false
+  };
+
+  // Aperçu figé : « aujourd’hui » = dimanche 4 octobre 2026.
+  // Jours ouverts : lundi à vendredi, avec les créneaux de la semaine type de l’admin.
+  // Jours bloqués par l’admin (mêmes valeurs que sa page Disponibilités).
+  blocked = ['2026-9-12', '2026-9-13'];
+
+  hours(dow) {
+    const range = (a, b) => { const r = []; for (let h = a; h < b; h++) r.push(String(h).padStart(2, '0') + ':00'); return r; };
+    if (dow === 3) return ['09:00', '10:00', '11:00', '14:00', '15:30'];
+    if (dow === 5) return range(9, 16);
+    if (dow >= 1 && dow <= 4) return range(9, 18);
+    return [];
+  }
+
+  validPhone(p) { return p.replace(/\D/g, '').length >= 8; }
+
+  renderVals() {
+    const st = this.state;
+    const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const today = new Date(2026, 9, 4);
+    const profile = st.profile || (this.props.hasProfile ?? true ? { first: 'Camille', last: 'Martin', phone: '06 12 34 56 78' } : null);
+    const base = new Date(2026, 9 + st.month, 1);
+    const y = base.getFullYear();
+    const m = base.getMonth();
+    const count = new Date(y, m + 1, 0).getDate();
+    const lead = (base.getDay() + 6) % 7;
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push({ label: '', disabled: true, selected: false, aria: '', pick: () => {}, style: 'width:44px;height:44px;border:0;background:transparent' });
+    for (let d = 1; d <= count; d++) {
+      const dt = new Date(y, m, d);
+      const key = y + '-' + m + '-' + d;
+      const isBlocked = this.blocked.includes(key);
+      const open = dt > today && !isBlocked && this.hours(dt.getDay()).length > 0;
+      const sel = st.date === key;
+      cells.push({
+        label: String(d),
+        disabled: !open,
+        selected: sel,
+        aria: days[dt.getDay()] + ' ' + d + ' ' + months[m] + (isBlocked ? ', indisponible' : ''),
+        pick: () => this.setState({ date: key, time: null }),
+        style:
+          'width:44px;height:44px;border:0;border-radius:50%;font-size:15px;font-weight:600;' +
+          (sel ? 'background:#5B3DF5;color:#FFFFFF' : open ? 'background:#EEEBFF;color:#3B22B8' : 'background:transparent;color:#8A8A96;cursor:default' + (isBlocked ? ';text-decoration:line-through' : ''))
+      });
+    }
+    let slots = [];
+    let dayLabel = '';
+    let hasDay = false;
+    if (st.date) {
+      const [sy, sm, sd] = st.date.split('-').map(Number);
+      const dt = new Date(sy, sm, sd);
+      hasDay = true;
+      dayLabel = days[dt.getDay()] + ' ' + sd + ' ' + months[sm];
+      slots = this.hours(dt.getDay()).map((t) => {
+        const on = st.time === t;
+        return {
+          time: t,
+          selected: on,
+          pick: () => this.setState({ time: t }),
+          style:
+            'min-height:48px;border-radius:14px;font-size:15px;font-weight:700;' +
+            (on ? 'border:2px solid #5B3DF5;background:#5B3DF5;color:#FFFFFF' : 'border:2px solid #D4D4DC;background:#FFFFFF;color:#14141A')
+        };
+      });
+    }
+    const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+    const seeded = this.props.hasProfile ?? true;
+    const upcoming = (seeded ? [{ id: 's1', day: 'Lundi 5 octobre', time: '09:00' }] : [])
+      .concat(st.appts)
+      .filter((a) => !st.cancelled.includes(a.id))
+      .map((a) => {
+        const asking = st.asking === a.id;
+        return {
+          day: a.day,
+          time: a.time,
+          asking,
+          idle: !asking,
+          cancelLabel: 'Annuler le rendez-vous du ' + a.day.toLowerCase() + ' à ' + a.time,
+          ask: () => this.setState({ asking: a.id, notice: '' }),
+          keep: () => this.setState({ asking: null }),
+          confirmCancel: () =>
+            this.setState({
+              asking: null,
+              cancelled: st.cancelled.concat([a.id]),
+              notice: 'Rendez-vous du ' + a.day.toLowerCase() + ' à ' + a.time + ' annulé. Le professionnel en a été averti.'
+            })
+        };
+      });
+    const pastList = seeded ? [{ day: 'Lundi 21 septembre', time: '10:00' }] : [];
+    const ready = !!(st.date && st.time);
+    const complete = st.first.trim() !== '' && st.last.trim() !== '' && this.validPhone(st.phone);
+    const profComplete = st.pf.trim() !== '' && st.pl.trim() !== '' && this.validPhone(st.pp);
+    const navStyle = (off) =>
+      'width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:' + (off ? 'transparent;color:#B4B4BE;cursor:default' : '#F5F5F8;color:#14141A');
+    const primary = (on) =>
+      'width:100%;min-height:56px;border:0;border-radius:999px;font-size:16px;font-weight:700;' +
+      (on ? 'background:#14141A;color:#FFFFFF' : 'background:#E6E6EC;color:#5C5C68;cursor:default');
+    const addAppt = () => st.appts.concat([{ id: 'b' + st.appts.length, day: cap(dayLabel), time: st.time }]);
+    const openProfile = (from) => () =>
+      this.setState({ step: 'profile', from, notice: '', pf: profile ? profile.first : '', pl: profile ? profile.last : '', pp: profile ? profile.phone : '' });
+    return {
+      isPick: st.step === 'pick',
+      isConfirm: st.step === 'confirm',
+      isForm: st.step === 'form',
+      isProfile: st.step === 'profile',
+      isMine: st.step === 'mine',
+      isDone: st.step === 'done',
+      weekdays: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+      cells,
+      slots,
+      dayLabel,
+      hasDay,
+      noDay: !hasDay,
+      monthLabel: months[m] + ' ' + y,
+      prevStyle: navStyle(st.month === 0),
+      nextStyle: navStyle(st.month === 2),
+      prevMonth: () => st.month > 0 && this.setState({ month: st.month - 1, date: null, time: null }),
+      nextMonth: () => st.month < 2 && this.setState({ month: st.month + 1, date: null, time: null }),
+      cannotContinue: !ready,
+      ctaLabel: ready ? 'Continuer · ' + st.time : 'Choisissez un créneau',
+      ctaStyle: primary(ready),
+      confirm: () => ready && this.setState({ step: profile ? 'confirm' : 'form', notice: '' }),
+      back: () => this.setState({ step: 'pick' }),
+      hasNotice: st.notice !== '',
+      notice: st.notice,
+      profileBtnLabel: profile ? 'Mon profil' : 'Créer mon profil',
+      openProfileFromPick: openProfile('pick'),
+      openProfileFromConfirm: openProfile('confirm'),
+      openMine: () => this.setState({ step: 'mine', notice: '', asking: null }),
+      backToPick: () => this.setState({ step: 'pick', notice: '', asking: null }),
+      summaryDay: cap(dayLabel),
+      summaryTime: st.time,
+      profileName: profile ? profile.first + ' ' + profile.last : '',
+      profilePhone: profile ? profile.phone : '',
+      bookWithProfile: () => this.setState({ step: 'done', appts: addAppt(), justCreated: false, notice: '' }),
+      first: st.first,
+      last: st.last,
+      phone: st.phone,
+      onFirst: (e) => this.setState({ first: e.target.value }),
+      onLast: (e) => this.setState({ last: e.target.value }),
+      onPhone: (e) => this.setState({ phone: e.target.value }),
+      cannotBook: !complete,
+      bookStyle: primary(complete),
+      book: () =>
+        complete &&
+        this.setState({
+          step: 'done',
+          profile: { first: st.first.trim(), last: st.last.trim(), phone: st.phone.trim() },
+          appts: addAppt(),
+          justCreated: true,
+          notice: ''
+        }),
+      profileTitle: profile ? 'Mon profil' : 'Créer mon profil',
+      profileHint: profile
+        ? 'Vos modifications sont aussi mises à jour chez le professionnel, y compris pour vos rendez-vous à venir.'
+        : 'Il sera utilisé automatiquement pour vos prochaines réservations.',
+      pf: st.pf,
+      pl: st.pl,
+      pp: st.pp,
+      onPf: (e) => this.setState({ pf: e.target.value }),
+      onPl: (e) => this.setState({ pl: e.target.value }),
+      onPp: (e) => this.setState({ pp: e.target.value }),
+      cannotSaveProfile: !profComplete,
+      saveProfileStyle: primary(profComplete),
+      saveProfileLabel: profile ? 'Enregistrer les modifications' : 'Créer mon profil',
+      saveProfile: () =>
+        profComplete &&
+        this.setState({
+          profile: { first: st.pf.trim(), last: st.pl.trim(), phone: st.pp.trim() },
+          step: st.from,
+          notice: profile ? 'Profil mis à jour. Le professionnel voit vos nouvelles informations.' : 'Profil créé. Il sera utilisé pour vos prochaines réservations.'
+        }),
+      backFromProfile: () => this.setState({ step: st.from }),
+      appts: upcoming,
+      past: pastList,
+      hasUpcoming: upcoming.length > 0,
+      hasPast: pastList.length > 0,
+      upcomingCount: upcoming.length,
+      mineLabel: 'Mes rendez-vous (' + upcoming.length + ' à venir)',
+      noAppts: upcoming.length === 0,
+      justCreated: st.justCreated,
+      doneName: (profile ? profile.first : st.first).trim(),
+      doneDay: cap(dayLabel),
+      doneTime: st.time,
+      restart: () => this.setState({ step: 'pick', date: null, time: null, month: 0, first: '', last: '', phone: '', notice: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>
