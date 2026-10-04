@@ -39,8 +39,12 @@ export function buildSettings(main: HTMLElement): Cleanup {
   // Éléments mis à jour sans reconstruire les champs (pour garder le focus en cours de saisie).
   const nameError = h('div', { class: 'field-error', role: 'alert', hidden: true }, 'Le nom de la société est obligatoire.');
   const phoneError = h('div', { class: 'field-error', role: 'alert', hidden: true }, 'Numéro invalide : 8 chiffres minimum, uniquement chiffres, espaces et + ( ) . -');
-  const statusBox = h('div');
-  const saveBtn = h('button', { class: 'btn btn-dark', onclick: () => void save() }, 'Enregistrer');
+  const statusBox = h('div', { class: 'desktop-only' });
+  // Grand écran : bouton dans l'en-tête. Mobile : barre fixée en bas de l'écran avec le message d'état.
+  const saveBtn = h('button', { class: 'btn btn-dark desktop-only', onclick: () => void save() }, 'Enregistrer');
+  const barBtn = h('button', { class: 'btn btn-dark', onclick: () => void save() }, 'Enregistrer');
+  const barStatus = h('span', { class: 'save-status', role: 'status' });
+  const saveBar = h('div', { class: 'save-bar' }, barStatus, barBtn);
   const preview = h('div', { class: 'event' });
 
   function refresh(): void {
@@ -49,8 +53,13 @@ export function buildSettings(main: HTMLElement): Cleanup {
     nameError.hidden = !err.name;
     phoneError.hidden = !err.phone;
     const blocked = err.name || err.phone || saving;
-    saveBtn.toggleAttribute('disabled', blocked);
-    saveBtn.textContent = saving ? 'Enregistrement…' : dirty || !status ? 'Enregistrer' : 'Enregistré ✓';
+    const label = saving ? 'Enregistrement…' : dirty || !status ? 'Enregistrer' : 'Enregistré ✓';
+    for (const b of [saveBtn, barBtn]) {
+      b.toggleAttribute('disabled', blocked);
+      b.textContent = label;
+    }
+    barStatus.textContent = status ? status.text : dirty ? 'Modifications non enregistrées.' : '';
+    barStatus.classList.toggle('is-error', status?.kind === 'error');
     fill(statusBox, status ? banner(status.text, status.kind) : null);
 
     const address = formatAddress(s);
@@ -144,7 +153,8 @@ export function buildSettings(main: HTMLElement): Cleanup {
         h('aside', { style: 'flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:12px' },
           h('h2', {}, 'Aperçu dans le calendrier du client'),
           preview,
-          h('p', { class: 'muted', style: 'font-size:13px' }, 'L’aperçu se met à jour pendant la saisie. Les événements déjà ajoutés par les clients ne sont pas modifiés.')))
+          h('p', { class: 'muted', style: 'font-size:13px' }, 'L’aperçu se met à jour pendant la saisie. Les événements déjà ajoutés par les clients ne sont pas modifiés.'))),
+      saveBar
     );
     refresh();
   }
