@@ -71,7 +71,7 @@ export function buildAppointments(main: HTMLElement): Cleanup {
     asking = id;
     flash = '';
     renderList();
-    content.querySelector('.appt-ask')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    content.querySelector('.appt-ask')?.scrollIntoView({ block: 'center' });
   }
 
   function row(a: Appointment): HTMLElement {
@@ -131,13 +131,13 @@ export function buildAppointments(main: HTMLElement): Cleanup {
       const my = e.clientY - startY;
       if (mode === 'pending') {
         if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { reset(); return; } // défilement vertical
-        if (mx > 10) { mode = 'swipe'; card.setPointerCapture(e.pointerId); } else return;
+        if (mx > 10) mode = 'swipe'; else return;
       }
       dx = Math.max(0, Math.min(mx, 140));
       card.style.transform = `translateX(${dx}px)`;
     });
     const end = (): void => {
-      if (mode === 'swipe' && dx >= THRESHOLD) { mode = 'idle'; onTrigger(); return; }
+      if (mode === 'swipe' && dx >= THRESHOLD) { mode = 'idle'; setTimeout(onTrigger, 0); return; }
       reset();
     };
     card.addEventListener('pointerup', end);
