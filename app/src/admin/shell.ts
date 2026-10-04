@@ -1,12 +1,13 @@
 // Coque Admin : garde d'accès (session + table admins), menu à 3 onglets, connexion.
 import { getSession, isAdmin, signIn, signOut } from '../data/admin';
 import { configured } from '../data/supabase';
-import { h } from '../ui/dom';
+import { h, icon } from '../ui/dom';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import type { Cleanup, RenderFn } from '../router';
 
-export type AdminTab = 'rendez-vous' | 'disponibilites' | 'jours-bloques' | 'parametres';
+export type AdminTab = 'rendez-vous' | 'gerer' | 'disponibilites' | 'jours-bloques' | 'parametres';
 
+// Onglets de la version large ; « Gérer » n'existe qu'en mobile (menu d'accès aux réglages).
 const TABS: { id: AdminTab; label: string }[] = [
   { id: 'rendez-vous', label: 'Rendez-vous' },
   { id: 'disponibilites', label: 'Disponibilités' },
@@ -51,6 +52,13 @@ export function adminRoute(
             onclick: async () => { await signOut(); location.reload(); }
           }, 'Se déconnecter')
         ),
+        // Mobile : plus d'onglets, un retour vers le parent (Gérer, ou Rendez-vous depuis Gérer).
+        active === 'rendez-vous'
+          ? null
+          : h('a', {
+              class: 'back-link',
+              href: '#/admin/' + (active === 'gerer' ? 'rendez-vous' : 'gerer')
+            }, icon('chevron-left', 22, 2.2), 'Retour'),
         main
       )
     );

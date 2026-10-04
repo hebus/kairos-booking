@@ -62,8 +62,15 @@ export function buildAvailability(main: HTMLElement): Cleanup {
   function dayPanel(d: DayConfig): HTMLElement {
     const label = capitalize(dayName(d.weekday));
     const parts: (Node | null)[] = [
-      h('div', { style: 'display:flex;flex-direction:column;gap:4px' },
-        h('h2', {}, label), h('p', { class: 'muted', style: 'font-size:15px' }, summarize(d)))
+      h('div', { class: 'panel-head' },
+        h('div', { style: 'display:flex;flex-direction:column;gap:4px;min-width:0' },
+          h('h2', {}, label), h('p', { class: 'muted', style: 'font-size:15px' }, summarize(d))),
+        // Mobile : la liste de la semaine est remplacée par un bandeau, l'interrupteur passe dans le panneau.
+        h('button', {
+          class: 'switch panel-switch', role: 'switch', 'aria-checked': d.worked ? 'true' : 'false',
+          'aria-label': `${label} : jour travaillé`,
+          onclick: () => edit((x) => { x.worked = !x.worked; })
+        }))
     ];
     if (!d.worked) {
       parts.push(h('div', { class: 'card', style: 'display:flex;flex-direction:column;align-items:flex-start;gap:16px' },
@@ -142,9 +149,20 @@ export function buildAvailability(main: HTMLElement): Cleanup {
       h('div', { class: 'admin-head' },
         h('div', {}, h('div', { class: 'eyebrow' }, 'Administration'), h('h1', {}, 'Disponibilités'),
           h('p', {}, 'Choisissez les jours travaillés et les plages horaires ouvertes à la réservation.')),
-        h('button', { class: 'btn btn-dark', disabled: saving, onclick: () => void save() }, saving ? 'Enregistrement…' : 'Enregistrer')
+        h('button', { class: 'btn btn-dark desktop-only', disabled: saving, onclick: () => void save() }, saving ? 'Enregistrement…' : 'Enregistrer')
       ),
-      status ? banner(status.text, status.kind) : null,
+      status ? h('div', { class: 'desktop-only' }, banner(status.text, status.kind)) : null,
+      h('div', { class: 'day-strip', role: 'group', 'aria-label': 'Semaine type' },
+        ...data.days.map((d) => {
+          const name = capitalize(dayName(d.weekday));
+          return h('button', {
+            class: 'day-chip' + (d.weekday === sel ? ' is-active' : ''),
+            'aria-pressed': d.weekday === sel ? 'true' : 'false',
+            'aria-label': `${name}, ${d.worked ? 'travaillé' : 'fermé'}`,
+            onclick: () => { sel = d.weekday; render(); }
+          }, h('span', {}, name.slice(0, 3)), h('i', { class: 'dot' + (d.worked ? ' on' : '') }));
+        })
+      ),
       h('div', { class: 'cols' },
         h('div', { class: 'col-list' },
           h('h2', {}, 'Semaine type'),
@@ -161,7 +179,12 @@ export function buildAvailability(main: HTMLElement): Cleanup {
             ))
         ),
         current ? dayPanel(current) : null
-      )
+      ),
+      // Mobile : barre d'enregistrement fixée en bas de l'écran, avec le message d'état.
+      h('div', { class: 'save-bar' },
+        h('span', { class: 'save-status' + (status?.kind === 'error' ? ' is-error' : ''), role: 'status' },
+          status ? status.text : 'Pensez à enregistrer vos modifications.'),
+        h('button', { class: 'btn btn-dark', disabled: saving, onclick: () => void save() }, saving ? 'Enregistrement…' : 'Enregistrer'))
     );
   }
 

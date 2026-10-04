@@ -3,6 +3,7 @@ import { adminRoute } from './admin/shell';
 import { buildAppointments } from './admin/appointments';
 import { buildAvailability } from './admin/availability';
 import { buildBlocked } from './admin/blocked';
+import { buildMenu } from './admin/menu';
 import { buildSettings } from './admin/settings';
 import { renderMine } from './client/mine';
 import { renderPick } from './client/pick';
@@ -22,6 +23,7 @@ const routes: Route[] = [
   // Admin (la page par défaut est « Rendez-vous »)
   { path: '/admin', title: 'Admin — Rendez-vous', render: adminRoute('rendez-vous', buildAppointments) },
   { path: '/admin/rendez-vous', title: 'Admin — Rendez-vous', render: adminRoute('rendez-vous', buildAppointments) },
+  { path: '/admin/gerer', title: 'Admin — Gérer', render: adminRoute('gerer', buildMenu) },
   { path: '/admin/disponibilites', title: 'Admin — Disponibilités', render: adminRoute('disponibilites', buildAvailability) },
   { path: '/admin/jours-bloques', title: 'Admin — Jours bloqués', render: adminRoute('jours-bloques', buildBlocked) },
   { path: '/admin/parametres', title: 'Admin — Paramètres', render: adminRoute('parametres', buildSettings) }
