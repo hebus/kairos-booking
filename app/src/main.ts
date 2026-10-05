@@ -31,6 +31,11 @@ const routes: Route[] = [
   { path: '/admin/qr-code', title: 'Admin — QR code', render: adminRoute('qr-code', buildQr) }
 ];
 
+// Service worker : requis pour les notifications push de l'admin (et l'installation sur l'écran d'accueil).
+if ('serviceWorker' in navigator) {
+  void navigator.serviceWorker.register('./sw.js').catch(() => undefined);
+}
+
 const root = document.getElementById('app');
 if (!root) throw new Error('#app introuvable');
 

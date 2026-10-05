@@ -5,7 +5,7 @@
 -- ============================================================
 
 -- Tout refuser d'abord, puis ouvrir colonne par colonne.
-revoke all on public.admins, public.settings, public.weekly_availability,
+revoke all on public.push_subscriptions, public.admins, public.settings, public.weekly_availability,
   public.availability_slots, public.blocked_days, public.appointments
 from anon, authenticated;
 
@@ -15,6 +15,7 @@ alter table public.weekly_availability enable row level security;
 alter table public.availability_slots enable row level security;
 alter table public.blocked_days enable row level security;
 alter table public.appointments enable row level security;
+alter table public.push_subscriptions enable row level security;
 
 -- ---------- Configuration : lecture publique, écriture admin ----------
 grant select on public.settings, public.weekly_availability,
@@ -66,3 +67,10 @@ create policy appt_admin_update on public.appointments for update to authenticat
 drop policy if exists appt_admin_delete on public.appointments;
 create policy appt_admin_delete on public.appointments for delete to authenticated
   using ((select public.is_admin()));
+
+-- ---------- Notifications push : chaque admin gère ses propres appareils ----------
+grant select, insert, update, delete on public.push_subscriptions to authenticated;
+drop policy if exists push_admin_own on public.push_subscriptions;
+create policy push_admin_own on public.push_subscriptions for all to authenticated
+  using (public.is_admin() and user_id = (select auth.uid()))
+  with check (public.is_admin() and user_id = (select auth.uid()));

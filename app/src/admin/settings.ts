@@ -2,6 +2,7 @@
 import { loadSettings, saveSettings } from '../data/admin';
 import { TIMEZONES, formatAddress, type CompanySettings } from '../data/settings';
 import { fill, h, icon } from '../ui/dom';
+import { notificationsSection } from './notifications';
 import { isValidPhone } from '../ui/format';
 import { banner, errorMessage } from '../ui/notice';
 import type { Cleanup } from '../router';
@@ -149,7 +150,8 @@ export function buildSettings(main: HTMLElement): Cleanup {
           h('section', { class: 'sec' },
             h('div', {}, h('h2', {}, 'Fuseau horaire'),
               h('p', { class: 'muted', style: 'font-size:14px' }, 'Détermine le « aujourd’hui » de la réservation et l’heure des événements calendrier.')),
-            h('label', { class: 'field' }, 'Fuseau du lieu', tz))),
+            h('label', { class: 'field' }, 'Fuseau du lieu', tz)),
+          notificationsSection()),
         h('aside', { style: 'flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:12px' },
           h('h2', {}, 'Aperçu dans le calendrier du client'),
           preview,

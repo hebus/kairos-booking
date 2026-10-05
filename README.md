@@ -71,10 +71,27 @@ Scripts : `npm run typecheck`, `npm test`, `npm run build`, `npm run preview`.
 
 > La clé publishable (anon) est publique par conception : la sécurité repose sur la RLS. **Ne jamais** utiliser la clé `service_role` dans l'appli.
 
+## Notifications push de l'admin (facultatif, gratuit)
+
+L'admin reçoit une notification sur son téléphone à chaque nouvelle réservation et à chaque annulation. Sans cette configuration, tout le reste fonctionne.
+
+1. Générer les clés VAPID : `npx web-push generate-vapid-keys`.
+2. GitHub : variable de dépôt `VITE_VAPID_PUBLIC_KEY` = clé **publique** (et la même dans `app/.env.local` pour le développement).
+3. Rejouer `supabase/schema.sql` puis `supabase/policies.sql` (table `push_subscriptions`).
+4. Déployer la fonction (Supabase CLI) :
+   ```bash
+   supabase secrets set VAPID_PUBLIC_KEY=<publique> VAPID_PRIVATE_KEY=<privée> VAPID_SUBJECT=mailto:vous@exemple.fr WEBHOOK_SECRET=<chaîne aléatoire>
+   supabase functions deploy notify-admin --no-verify-jwt
+   ```
+5. Supabase → Database → Webhooks → créer un webhook sur la table `appointments` (événements **Insert** et **Update**), type *Supabase Edge Functions* → `notify-admin`, avec l'en-tête HTTP `x-webhook-secret: <WEBHOOK_SECRET>`.
+6. Dans l'Admin, onglet **Paramètres** → « Notifications » → *Activer sur cet appareil*. Sur iPhone : d'abord « Ajouter à l'écran d'accueil » dans Safari, puis ouvrir l'appli installée.
+
+Rappels côté client : le fichier `.ics` contient deux alarmes (la veille et 1 h avant).
+
 ## Limites connues
 - L'événement ajouté au calendrier est une copie : annuler dans l'appli (ou suppression par l'admin) ne le retire pas du calendrier du client. L'adresse et le téléphone ajoutés à l'événement sont ceux au moment de l'ajout : les modifier ensuite ne met pas à jour les événements déjà créés.
 - Le fuseau horaire est limité à Europe/Paris, Europe/Brussels et Europe/Zurich (même règle d'heure d'été que celle du fichier `.ics` généré).
-- Pas de favicon (404 dans la console du navigateur).
+- Notifications push : sur iPhone, l'appli doit être installée sur l'écran d'accueil (iOS 16.4+) ; pas de notification côté client.
 - Pas de mode sombre.
 - Les `.dc.html` de `design/` sont des maquettes (format d'un outil de design), pas du code de l'appli.
 - Pas de réinitialisation de mot de passe admin dans l'appli : à faire depuis le tableau de bord Supabase.

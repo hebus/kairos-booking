@@ -89,6 +89,16 @@ create unique index if not exists appointments_slot_uq
 create index if not exists appointments_client_idx on public.appointments (client_id);
 create index if not exists appointments_day_idx on public.appointments (day, start_time);
 
+-- ---------- Notifications push de l'admin ----------
+-- Un abonnement par appareil (endpoint). Lu par l'Edge Function notify-admin (service_role).
+create table if not exists public.push_subscriptions (
+  endpoint text primary key,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
 -- ---------- Realtime ----------
 -- Replica identity par défaut (clé primaire seule) : les événements DELETE ne
 -- contiennent que l'id, jamais de données personnelles.
