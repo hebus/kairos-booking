@@ -1,5 +1,5 @@
 // Jours bloqués : exceptions datées à la semaine type. Chaque clic est enregistré immédiatement.
-import { blockDay, listBlocked, loadAvailability, unblockDay } from '../data/admin';
+import { blockDay, listBlocked, loadAvailability, purgePastBlocked, unblockDay } from '../data/admin';
 import { createCalendar } from '../ui/calendar';
 import { fill, h, icon } from '../ui/dom';
 import { capitalize, formatDay, parseIso, toIso } from '../ui/format';
@@ -85,7 +85,10 @@ export function buildBlocked(main: HTMLElement): Cleanup {
   );
   renderAll();
 
-  Promise.all([listBlocked(), loadAvailability()])
+  // Nettoyage des jours passés ; un échec n'empêche pas d'afficher la page (la liste filtre déjà les jours passés).
+  purgePastBlocked(todayIso)
+    .catch(() => undefined)
+    .then(() => Promise.all([listBlocked(), loadAvailability()]))
     .then(([days, avail]) => {
       if (disposed) return;
       for (const d of days) blocked.add(d);

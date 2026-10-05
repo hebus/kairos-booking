@@ -105,6 +105,11 @@ export async function listBlocked(): Promise<string[]> {
   return check<{ day: string }[]>(res as { data: { day: string }[]; error: null }).map((r) => r.day);
 }
 
+/** Supprime les jours bloqués strictement antérieurs à `todayIso` (ils n'ont plus d'effet). */
+export async function purgePastBlocked(todayIso: string): Promise<void> {
+  check(await need(adminDb).from('blocked_days').delete().lt('day', todayIso));
+}
+
 export async function blockDay(day: string): Promise<void> {
   check(await need(adminDb).from('blocked_days').insert({ day }));
 }
