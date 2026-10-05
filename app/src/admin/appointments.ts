@@ -10,11 +10,13 @@ import type { Cleanup } from '../router';
 /** Tirer la page vers le bas depuis le haut recharge la liste (l'appli installée n'a pas de rafraîchissement natif). */
 function enablePullToRefresh(refresh: () => Promise<void>): () => void {
   const THRESHOLD = 70;
-  const hint = h('div', { class: 'pull-hint', 'aria-hidden': 'true' }, icon('chevron-left', 20, 2.4));
+  const hint = h('div', { class: 'pull-hint', 'aria-hidden': 'true' }, icon('refresh', 20, 2.4));
   let startY = 0;
   let dy = 0;
   let pulling = false;
   let busy = false;
+
+  const spinner = hint.firstElementChild as SVGElement;
 
   const reset = (): void => {
     pulling = false;
@@ -37,14 +39,24 @@ function enablePullToRefresh(refresh: () => Promise<void>): () => void {
     if (dy <= 0) { reset(); return; }
     const shown = Math.min(dy, 110) / 2;
     hint.style.opacity = String(Math.min(dy / THRESHOLD, 1));
-    hint.style.transform = `translate(-50%, ${shown - 48}px) rotate(${dy >= THRESHOLD ? 90 : 0}deg)`;
+    hint.style.transform = `translate(-50%, ${shown - 48}px)`;
+    spinner.style.transform = `rotate(${dy * 3}deg)`; // l'icône tourne avec le doigt
   };
   const onEnd = (): void => {
     const go = pulling && dy >= THRESHOLD;
-    reset();
-    if (!go) return;
+    if (!go) { reset(); return; }
+    // Chargement : la pastille reste visible et tourne jusqu'à la fin du rechargement.
+    pulling = false;
     busy = true;
-    void refresh().finally(() => { busy = false; });
+    hint.classList.add('is-loading');
+    hint.style.transition = 'transform 0.2s';
+    hint.style.transform = 'translate(-50%, 8px)';
+    spinner.style.transform = '';
+    void refresh().finally(() => {
+      busy = false;
+      hint.classList.remove('is-loading');
+      reset();
+    });
   };
 
   document.body.append(hint);

@@ -13,6 +13,7 @@ import { renderDone, renderReserve } from './client/reserve';
 import { loadPublicSettings } from './data/settings';
 import { configured } from './data/supabase';
 import { startRouter, type Route } from './router';
+import { watchForUpdates } from './ui/update';
 
 const routes: Route[] = [
   // Client
@@ -48,3 +49,4 @@ if (configured) {
   ]);
 }
 startRouter(root, routes, '/');
+watchForUpdates();
