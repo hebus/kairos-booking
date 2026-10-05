@@ -12,7 +12,7 @@ const TABS: { id: AdminTab; label: string; icon?: IconName }[] = [
   { id: 'rendez-vous', label: 'Rendez-vous' },
   { id: 'disponibilites', label: 'Disponibilités' },
   { id: 'jours-bloques', label: 'Jours bloqués' },
-  { id: 'parametres', label: 'Paramètres' },
+  { id: 'parametres', label: 'Paramètres', icon: 'sliders' },
   { id: 'qr-code', label: 'QR code', icon: 'qr' }
 ];
 
