@@ -6,7 +6,7 @@ self.addEventListener('push', (event) => {
     Promise.all([
       self.registration.showNotification(data.title || 'Kairos', {
         body: data.body || '',
-        icon: './icon.svg',
+        icon: './icon-192.png',
         tag: data.tag || undefined,
         data: { url: data.url || './#/admin/rendez-vous' }
       }),
