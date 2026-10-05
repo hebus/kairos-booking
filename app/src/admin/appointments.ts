@@ -7,6 +7,63 @@ import { banner, errorMessage } from '../ui/notice';
 import { MOBILE_QUERY } from '../ui/viewport';
 import type { Cleanup } from '../router';
 
+/** Tirer la page vers le bas depuis le haut recharge la liste (l'appli installée n'a pas de rafraîchissement natif). */
+function enablePullToRefresh(refresh: () => Promise<void>): () => void {
+  const THRESHOLD = 70;
+  const hint = h('div', { class: 'pull-hint', 'aria-hidden': 'true' }, icon('chevron-left', 20, 2.4));
+  let startY = 0;
+  let dy = 0;
+  let pulling = false;
+  let busy = false;
+
+  const reset = (): void => {
+    pulling = false;
+    dy = 0;
+    hint.style.transition = 'transform 0.2s, opacity 0.2s';
+    hint.style.transform = 'translate(-50%, -48px)';
+    hint.style.opacity = '0';
+  };
+  const onStart = (e: TouchEvent): void => {
+    const t = e.touches[0];
+    if (busy || !t || window.scrollY > 0) return;
+    pulling = true;
+    startY = t.clientY;
+    hint.style.transition = 'none';
+  };
+  const onMove = (e: TouchEvent): void => {
+    const t = e.touches[0];
+    if (!pulling || !t) return;
+    dy = t.clientY - startY;
+    if (dy <= 0) { reset(); return; }
+    const shown = Math.min(dy, 110) / 2;
+    hint.style.opacity = String(Math.min(dy / THRESHOLD, 1));
+    hint.style.transform = `translate(-50%, ${shown - 48}px) rotate(${dy >= THRESHOLD ? 90 : 0}deg)`;
+  };
+  const onEnd = (): void => {
+    const go = pulling && dy >= THRESHOLD;
+    reset();
+    if (!go) return;
+    busy = true;
+    void refresh().finally(() => { busy = false; });
+  };
+
+  document.body.append(hint);
+  document.documentElement.style.overscrollBehaviorY = 'contain'; // pas de double rafraîchissement natif
+  document.addEventListener('touchstart', onStart, { passive: true });
+  document.addEventListener('touchmove', onMove, { passive: true });
+  document.addEventListener('touchend', onEnd);
+  document.addEventListener('touchcancel', reset);
+  reset();
+  return () => {
+    hint.remove();
+    document.documentElement.style.overscrollBehaviorY = '';
+    document.removeEventListener('touchstart', onStart);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+    document.removeEventListener('touchcancel', reset);
+  };
+}
+
 /** En dessous de ce nombre de rendez-vous à venir, la recherche est inutile. */
 const MIN_FOR_SEARCH = 6;
 
@@ -210,8 +267,10 @@ export function buildAppointments(main: HTMLElement): Cleanup {
   void reload();
   const unsubscribe = subscribeAppointments(() => void reload());
   window.addEventListener('resize', updateSearchVisibility);
+  const stopPull = enablePullToRefresh(() => reload());
   return () => {
     disposed = true;
+    stopPull();
     window.removeEventListener('resize', updateSearchVisibility);
     unsubscribe();
   };

@@ -3,12 +3,18 @@ self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { /* message vide ou invalide */ }
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Kairos', {
-      body: data.body || '',
-      icon: './icon.svg',
-      tag: data.tag || undefined,
-      data: { url: data.url || './#/admin/rendez-vous' }
-    })
+    Promise.all([
+      self.registration.showNotification(data.title || 'Kairos', {
+        body: data.body || '',
+        icon: './icon.svg',
+        tag: data.tag || undefined,
+        data: { url: data.url || './#/admin/rendez-vous' }
+      }),
+      // Une fenêtre ouverte recharge sa liste de rendez-vous sans attendre le temps réel.
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+        for (const w of windows) w.postMessage({ type: 'appointments-changed' });
+      })
+    ])
   );
 });
 

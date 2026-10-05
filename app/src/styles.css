@@ -359,3 +359,7 @@ a { color: inherit; }
   .admin[data-page='rendez-vous'] .empty-icon svg { width: 36px; height: 36px; }
   .admin[data-page='rendez-vous'] .empty-text { max-width: none; font-size: 14px; line-height: 1.4; }
 }
+
+/* Pull-to-refresh : pastille qui descend depuis le haut de l'écran pendant le geste. */
+.pull-hint { position: fixed; z-index: 20; top: calc(env(safe-area-inset-top) + 8px); left: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--ink); color: #fff; pointer-events: none; }
+.pull-hint svg { transform: rotate(-90deg); }

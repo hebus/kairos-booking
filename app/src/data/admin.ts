@@ -45,8 +45,20 @@ export function subscribeAppointments(onChange: () => void): () => void {
     .channel('admin-appointments')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, onChange)
     .subscribe();
+  // Appli en arrière-plan (PWA) : la connexion temps réel est suspendue et les changements sont manqués.
+  // On recharge donc au retour au premier plan, à la reconnexion réseau et quand une notification push arrive.
+  const resync = (): void => { if (document.visibilityState === 'visible') onChange(); };
+  const onMessage = (e: MessageEvent): void => { if (e.data?.type === 'appointments-changed') onChange(); };
+  document.addEventListener('visibilitychange', resync);
+  window.addEventListener('focus', resync);
+  window.addEventListener('online', resync);
+  navigator.serviceWorker?.addEventListener('message', onMessage);
   return () => {
     void db.removeChannel(channel);
+    document.removeEventListener('visibilitychange', resync);
+    window.removeEventListener('focus', resync);
+    window.removeEventListener('online', resync);
+    navigator.serviceWorker?.removeEventListener('message', onMessage);
   };
 }
 
