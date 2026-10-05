@@ -1,13 +1,9 @@
 // QR code : permet à un client de scanner avec son téléphone pour ouvrir le site de réservation.
 import qrcode from 'qrcode-generator';
+import { QR_URL } from '../config';
 import { getSettings } from '../data/settings';
 import { h } from '../ui/dom';
 import type { Cleanup } from '../router';
-
-/** Adresse publique de la page de réservation (sans le hash de l'admin). */
-function bookingUrl(): string {
-  return location.origin + location.pathname;
-}
 
 const QUIET = 4;
 
@@ -67,7 +63,7 @@ function qrSvg(text: string): SVGSVGElement {
 }
 
 export function buildQr(main: HTMLElement): Cleanup {
-  const url = bookingUrl();
+  const url = QR_URL;
   const status = h('span', { class: 'muted', role: 'status' });
   let timer: number | undefined;
 
