@@ -5,7 +5,8 @@ import { h, icon, type IconName } from '../ui/dom';
 const ITEMS: { href: string; icon: IconName; title: string; text: string }[] = [
   { href: '#/admin/disponibilites', icon: 'clock', title: 'Disponibilités', text: 'Jours travaillés et horaires ouverts' },
   { href: '#/admin/jours-bloques', icon: 'calendar', title: 'Jours bloqués', text: 'Congés, jours fériés, fermetures' },
-  { href: '#/admin/parametres', icon: 'user', title: 'Paramètres', text: 'Nom, téléphone, adresse, fuseau' }
+  { href: '#/admin/parametres', icon: 'user', title: 'Paramètres', text: 'Nom, téléphone, adresse, fuseau' },
+  { href: '#/admin/qr-code', icon: 'qr', title: 'QR code', text: 'Accès au site de réservation par téléphone' }
 ];
 
 export function buildMenu(main: HTMLElement): void {

@@ -11,7 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.2"
+    "@supabase/supabase-js": "^2.117.2",
+    "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

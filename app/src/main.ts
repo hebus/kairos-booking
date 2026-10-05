@@ -4,6 +4,7 @@ import { buildAppointments } from './admin/appointments';
 import { buildAvailability } from './admin/availability';
 import { buildBlocked } from './admin/blocked';
 import { buildMenu } from './admin/menu';
+import { buildQr } from './admin/qr';
 import { buildSettings } from './admin/settings';
 import { renderMine } from './client/mine';
 import { renderPick } from './client/pick';
@@ -26,7 +27,8 @@ const routes: Route[] = [
   { path: '/admin/gerer', title: 'Admin — Gérer', render: adminRoute('gerer', buildMenu) },
   { path: '/admin/disponibilites', title: 'Admin — Disponibilités', render: adminRoute('disponibilites', buildAvailability) },
   { path: '/admin/jours-bloques', title: 'Admin — Jours bloqués', render: adminRoute('jours-bloques', buildBlocked) },
-  { path: '/admin/parametres', title: 'Admin — Paramètres', render: adminRoute('parametres', buildSettings) }
+  { path: '/admin/parametres', title: 'Admin — Paramètres', render: adminRoute('parametres', buildSettings) },
+  { path: '/admin/qr-code', title: 'Admin — QR code', render: adminRoute('qr-code', buildQr) }
 ];
 
 const root = document.getElementById('app');

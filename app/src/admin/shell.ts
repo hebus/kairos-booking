@@ -1,18 +1,19 @@
 // Coque Admin : garde d'accès (session + table admins), menu à 3 onglets, connexion.
 import { getSession, isAdmin, signIn, signOut } from '../data/admin';
 import { configured } from '../data/supabase';
-import { h, icon } from '../ui/dom';
+import { h, icon, type IconName } from '../ui/dom';
 import { banner, errorMessage, missingConfig } from '../ui/notice';
 import type { Cleanup, RenderFn } from '../router';
 
-export type AdminTab = 'rendez-vous' | 'gerer' | 'disponibilites' | 'jours-bloques' | 'parametres';
+export type AdminTab = 'rendez-vous' | 'gerer' | 'disponibilites' | 'jours-bloques' | 'parametres' | 'qr-code';
 
 // Onglets de la version large ; « Gérer » n'existe qu'en mobile (menu d'accès aux réglages).
-const TABS: { id: AdminTab; label: string }[] = [
+const TABS: { id: AdminTab; label: string; icon?: IconName }[] = [
   { id: 'rendez-vous', label: 'Rendez-vous' },
   { id: 'disponibilites', label: 'Disponibilités' },
   { id: 'jours-bloques', label: 'Jours bloqués' },
-  { id: 'parametres', label: 'Paramètres' }
+  { id: 'parametres', label: 'Paramètres' },
+  { id: 'qr-code', label: 'QR code', icon: 'qr' }
 ];
 
 export function adminRoute(
@@ -43,8 +44,9 @@ export function adminRoute(
             h('a', {
               class: 'tab' + (t.id === active ? ' is-active' : ''),
               href: '#/admin/' + t.id,
-              'aria-current': t.id === active ? 'page' : null
-            }, t.label)
+              'aria-current': t.id === active ? 'page' : null,
+              ...(t.icon ? { 'aria-label': t.label, title: t.label } : {})
+            }, t.icon ? icon(t.icon, 22) : t.label)
           ),
           h('span', { class: 'spacer' }),
           h('button', {
