@@ -350,3 +350,12 @@ a { color: inherit; }
   .admin[data-page='qr-code'] :is(.tabs, .back-link, .admin-head p, .qr-actions, [role='status']) { display: none; }
 }
 .tab:has(> svg) { width: 44px; padding: 0; justify-content: center; }
+
+/* Rendez-vous vide en mobile paysage : icône à gauche, texte à droite, pour tenir sans défilement. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .admin[data-page='rendez-vous'] { padding-bottom: 16px; gap: 12px; }
+  .admin[data-page='rendez-vous'] .empty { display: grid; grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; column-gap: 24px; row-gap: 8px; padding: 16px 24px; text-align: left; }
+  .admin[data-page='rendez-vous'] .empty-icon { grid-row: 1 / span 3; width: 72px; height: 72px; }
+  .admin[data-page='rendez-vous'] .empty-icon svg { width: 36px; height: 36px; }
+  .admin[data-page='rendez-vous'] .empty-text { max-width: none; font-size: 14px; line-height: 1.4; }
+}
