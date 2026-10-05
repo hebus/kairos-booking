@@ -75,7 +75,7 @@ export function buildQr(main: HTMLElement): Cleanup {
         await navigator.clipboard.writeText(url);
         flash('Lien copié.');
       } catch {
-        flash('Copie impossible : sélectionnez le lien ci-dessus.');
+        flash('Copie impossible sur cet appareil : utilisez « Partager ».');
       }
     }
   }, 'Copier le lien');
@@ -110,7 +110,6 @@ export function buildQr(main: HTMLElement): Cleanup {
     h('div', { class: 'qr-card' },
       h('div', { class: 'qr-code' }, qrSvg(url)),
       h('strong', {}, getSettings().companyName),
-      h('code', { class: 'qr-url' }, url),
       h('div', { class: 'qr-actions' },
         h('button', { class: 'btn btn-dark', type: 'button', onclick: () => void share() }, 'Partager'),
         copy,
