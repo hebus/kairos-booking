@@ -81,6 +81,11 @@ export function buildIcs(ev: CalendarEvent, ctx: EventContext, now: Date = new D
     'ACTION:DISPLAY',
     `DESCRIPTION:${escapeText(eventTitle(ctx))}`,
     'END:VALARM',
+    'BEGIN:VALARM',
+    'TRIGGER:-P1D',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:${escapeText(eventTitle(ctx))}`,
+    'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR'
   ];

@@ -16,6 +16,8 @@ describe('export calendrier', () => {
     expect(ics).toContain('DTSTART;TZID=Europe/Paris:20261005T090000');
     expect(ics).toContain('DTEND;TZID=Europe/Paris:20261005T100000');
     expect(ics).toContain('TRIGGER:-PT1H');
+    expect(ics).toContain('TRIGGER:-P1D');
+    expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(2);
     expect(ics).toContain('TZID:Europe/Paris');
   });
   it('échappe les virgules du nom de la société', () => {
