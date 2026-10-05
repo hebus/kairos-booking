@@ -7,6 +7,9 @@ import { banner, errorMessage } from '../ui/notice';
 import { MOBILE_QUERY } from '../ui/viewport';
 import type { Cleanup } from '../router';
 
+/** En dessous de ce nombre de rendez-vous à venir, la recherche est inutile. */
+const MIN_FOR_SEARCH = 6;
+
 export function buildAppointments(main: HTMLElement): Cleanup {
   const todayIso = toIso(new Date());
   let list: Appointment[] = [];
@@ -22,6 +25,8 @@ export function buildAppointments(main: HTMLElement): Cleanup {
   const search = h('input', { type: 'search', placeholder: 'Nom, prénom ou téléphone' });
   search.addEventListener('input', () => { q = search.value; renderList(); });
 
+  const searchField = h('label', { class: 'field', style: 'flex:0 1 320px;min-width:220px' }, 'Rechercher un client', search);
+
   main.append(
     h('div', { class: 'admin-head' },
       h('div', { class: 'head-row' },
@@ -29,7 +34,7 @@ export function buildAppointments(main: HTMLElement): Cleanup {
         // Mobile : les onglets sont masqués, « Gérer » ouvre le menu des réglages.
         h('a', { class: 'btn btn-dark btn-sm manage-link', href: '#/admin/gerer' }, icon('sliders', 18), 'Gérer')
       ),
-      h('label', { class: 'field', style: 'flex:0 1 320px;min-width:220px' }, 'Rechercher un client', search)
+      searchField
     ),
     content
   );
@@ -145,6 +150,14 @@ export function buildAppointments(main: HTMLElement): Cleanup {
     card.addEventListener('pointercancel', reset);
   }
 
+  /** La recherche n'apparaît que si la liste est assez longue et déborde de l'écran (mesuré champ visible, pour rester stable). */
+  function updateSearchVisibility(): void {
+    searchField.hidden = false;
+    const long = list.filter((a) => a.day >= todayIso).length >= MIN_FOR_SEARCH;
+    const overflows = document.documentElement.scrollHeight > window.innerHeight;
+    searchField.hidden = !(q.trim() !== '' || (long && overflows));
+  }
+
   function renderList(): void {
     const upcoming = list.filter((a) => a.day >= todayIso);
     const shown = upcoming.filter(matches);
@@ -190,13 +203,16 @@ export function buildAppointments(main: HTMLElement): Cleanup {
         ? emptyState({ icon: 'search', title: 'Aucun résultat', text: 'Aucun rendez-vous ne correspond à cette recherche.' })
         : null
     );
+    updateSearchVisibility();
   }
 
   renderList();
   void reload();
   const unsubscribe = subscribeAppointments(() => void reload());
+  window.addEventListener('resize', updateSearchVisibility);
   return () => {
     disposed = true;
+    window.removeEventListener('resize', updateSearchVisibility);
     unsubscribe();
   };
 }
